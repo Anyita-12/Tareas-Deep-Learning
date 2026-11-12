@@ -1,0 +1,1596 @@
+
+<!DOCTYPE html>
+
+
+<html lang="es" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>6. Evaluación estadística &#8212; Predicción de clics en anuncios móviles con MLP</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css?v=8cd3d715" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/autores.css?v=fc0dcfce" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="_static/documentation_options.js?v=78d55cf8"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Haz clic para mostrar';</script>
+    <script>let toggleHintHide = 'Haz clic para ocultar';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
+    <script src="_static/translations.js?v=d190bf04"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '06_evaluacion_estadistica';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Búsqueda" href="search.html" />
+    <link rel="next" title="7. Benchmarking computacional" href="07_benchmarking.html" />
+    <link rel="prev" title="5. Modelado con PySpark" href="05_modelado_pyspark.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="es"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Saltar al contenido principal</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Volver arriba</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Advertencia de versión"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Navegación del sitio">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="En esta página">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Predicción de clics en anuncios móviles con MLP</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><div class="sidebar-autores">
+  <div class="autor">
+    <img src="_static/autores/anyely.jpg" alt="Anyely Sanjuan Benavides">
+    <p class="autor-nombre">Anyely Sanjuan Benavides</p>
+    <p class="autor-detalle">Msc. Analítica de Datos<br>Universidad del Norte</p>
+  </div>
+  <div class="autor">
+    <img src="_static/autores/juan.jpg" alt="Juan David Díaz Fernández">
+    <p class="autor-nombre">Juan David Díaz Fernández</p>
+    <p class="autor-detalle">Msc. Ingeniería Mecánica<br>Universidad del Norte</p>
+  </div>
+</div></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Predicción de clics en anuncios móviles con MLP
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_problema_dataset.html">1. Definición del problema y ficha de datos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_eda.html">2. Análisis exploratorio de datos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_preprocesamiento.html">3. Preprocesamiento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_modelado_sklearn.html">4. Modelado con scikit-learn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_modelado_pyspark.html">5. Modelado con PySpark</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">6. Evaluación estadística</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_benchmarking.html">7. Benchmarking computacional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_interpretabilidad.html">8. Interpretabilidad local con LIME</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_comparacion.html">9. Comparación de resultados</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_reflexion_critica.html">10. Reflexión crítica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_anexo_reproducibilidad.html">Anexo A. Reproducibilidad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_referencias.html">Referencias</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/Anyita-12/Tareas-Deep-Learning" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Repositorio de origen"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Descarga esta pagina">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/06_evaluacion_estadistica.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Descargar archivo fuente"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Imprimir en PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Modo de pantalla completa"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Tema" data-bs-title="Tema"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Claro"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Oscuro"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="Sistema"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>6. Evaluación estadística</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contenido </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tabla-de-metricas">6.1 Tabla de métricas</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#curvas-roc-y-pr">6.2 Curvas ROC y PR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibracion">6.3 Calibración</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#umbral-de-decision-y-matriz-de-confusion">6.4 Umbral de decisión y matriz de confusión</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lift-y-ganancia-acumulada">6.5 Lift y ganancia acumulada</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inferencia-estadistica">6.6 Inferencia estadística</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ponderacion-de-clases">6.7 Ponderación de clases</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="evaluacion-estadistica">
+<h1>6. Evaluación estadística<a class="headerlink" href="#evaluacion-estadistica" title="Link to this heading">#</a></h1>
+<p>En este capítulo evaluamos todos los modelos en el conjunto de prueba (día 30 completo) con métricas de discriminación, probabilísticas, de umbral fijo y de utilidad de negocio, y contrastamos las diferencias con pruebas estadísticas. Aquí respondemos la pregunta P3: si el MLP mejora de forma significativa a las líneas base.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>§</p></th>
+<th class="head"><p>Contenido</p></th>
+<th class="head"><p>Método</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>6.1</p></td>
+<td><p>Tabla de métricas</p></td>
+<td><p>Media ± DE e IC 95 % <span class="math notranslate nohighlight">\(t\)</span> entre semillas</p></td>
+</tr>
+<tr class="row-odd"><td><p>6.2</p></td>
+<td><p>Discriminación</p></td>
+<td><p>Curvas ROC y PR</p></td>
+</tr>
+<tr class="row-even"><td><p>6.3</p></td>
+<td><p>Calibración</p></td>
+<td><p>Curva de calibración y ECE</p></td>
+</tr>
+<tr class="row-odd"><td><p>6.4</p></td>
+<td><p>Umbral fijo</p></td>
+<td><p>Umbral elegido en validación, matriz de confusión</p></td>
+</tr>
+<tr class="row-even"><td><p>6.5</p></td>
+<td><p>Utilidad de negocio</p></td>
+<td><p>Lift por decil y ganancia acumulada</p></td>
+</tr>
+<tr class="row-odd"><td><p>6.6</p></td>
+<td><p>Inferencia</p></td>
+<td><p>Bootstrap, DeLong, McNemar, <span class="math notranslate nohighlight">\(t\)</span> pareada con Holm</p></td>
+</tr>
+<tr class="row-even"><td><p>6.7</p></td>
+<td><p>Ponderación de clases</p></td>
+<td><p>MLP con y sin pesos por clase</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">ROOT</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">(),</span> <span class="o">*</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">"src"</span> <span class="o">/</span> <span class="s2">"config.py"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
+<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">ROOT</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ROOT</span><span class="p">))</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Markdown</span><span class="p">,</span> <span class="n">display</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">C</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">plots</span> <span class="k">as</span> <span class="n">P</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span> <span class="k">as</span> <span class="n">R</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.persist</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_json</span>
+
+<span class="n">P</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+<span class="n">C</span><span class="o">.</span><span class="n">ensure_dirs</span><span class="p">()</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.precision"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_colwidth"</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Resultados:"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">RESULTS</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">ROOT</span><span class="p">),</span> <span class="s2">"| prueba de humo:"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">SMOKE</span><span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_recall_curve</span><span class="p">,</span> <span class="n">roc_curve</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">metrics</span> <span class="k">as</span> <span class="n">M</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">y_split</span><span class="p">(</span><span class="s2">"test"</span><span class="p">)</span>
+<span class="n">yv</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">y_split</span><span class="p">(</span><span class="s2">"val"</span><span class="p">)</span>
+<span class="n">enc</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">"scikit-learn"</span><span class="p">,</span> <span class="s2">"encoding"</span><span class="p">)</span>
+<span class="n">best_enc</span> <span class="o">=</span> <span class="n">enc</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"encoding"</span><span class="p">)[</span><span class="s2">"val.roc_auc"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
+<span class="n">sk</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">enc</span><span class="p">[</span><span class="n">enc</span><span class="p">[</span><span class="s2">"encoding"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="n">best_enc</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">MLP_TUNE_ENCODING</span><span class="p">,</span> <span class="s2">"freq"</span><span class="p">])],</span> <span class="n">R</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">"scikit-learn"</span><span class="p">,</span> <span class="s2">"baselines"</span><span class="p">)])</span>
+<span class="n">sk</span> <span class="o">=</span> <span class="n">sk</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">"run_dir"</span><span class="p">)</span>
+<span class="n">spk</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">"PySpark"</span><span class="p">,</span> <span class="s2">"main"</span><span class="p">)</span>
+<span class="n">todos</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">sk</span><span class="p">,</span> <span class="n">spk</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">todos</span><span class="p">[</span><span class="s2">"modelo"</span><span class="p">]</span> <span class="o">=</span> <span class="n">todos</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">label</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">todos</span><span class="p">[</span><span class="s2">"grupo"</span><span class="p">]</span> <span class="o">=</span> <span class="n">todos</span><span class="p">[</span><span class="s2">"env"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">" · "</span> <span class="o">+</span> <span class="n">todos</span><span class="p">[</span><span class="s2">"size"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Prueba: </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">num</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span><span class="si">}</span><span class="s2"> impresiones, tasa de clics </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">pct</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> | mejor codificación en validación: </span><span class="si">{</span><span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="n">best_enc</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Resultados: results | prueba de humo: False
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Prueba: 4 218 938 impresiones, tasa de clics 16.93 % | mejor codificación en validación: Hashing 2^14
+</pre></div>
+</div>
+</div>
+</div>
+<section id="tabla-de-metricas">
+<h2>6.1 Tabla de métricas<a class="headerlink" href="#tabla-de-metricas" title="Link to this heading">#</a></h2>
+<p>Para cada modelo reportamos media ± desviación estándar entre semillas y, entre corchetes, el intervalo de confianza del 95 % para la media, <span class="math notranslate nohighlight">\(\bar x \pm t_{0.975,\,R-1}\, s / \sqrt{R}\)</span>. El umbral de las métricas de umbral fijo se eligió en validación para cada corrida.</p>
+<p>Las métricas probabilísticas son:</p>
+<ul class="simple">
+<li><p><strong>Log loss:</strong> <span class="math notranslate nohighlight">\(-\frac{1}{N}\sum_i [y_i \log p_i + (1 - y_i)\log(1 - p_i)]\)</span>, penaliza las probabilidades confiadas y equivocadas.</p></li>
+<li><p><strong>Brier:</strong> <span class="math notranslate nohighlight">\(\frac{1}{N}\sum_i (p_i - y_i)^2\)</span>, el error cuadrático de la probabilidad.</p></li>
+<li><p><strong>ECE:</strong> <span class="math notranslate nohighlight">\(\sum_{b=1}^{15} \frac{|B_b|}{N} \big| \bar y_{B_b} - \bar p_{B_b} \big|\)</span>, con 15 contenedores de igual frecuencia; mide la distancia media entre la probabilidad predicha y la frecuencia observada de clics (Guo et al., 2017). Usamos contenedores de igual frecuencia porque la mayoría de las probabilidades se concentra por debajo de 0.3.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mets</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"test.roc_auc"</span><span class="p">,</span> <span class="s2">"test.pr_auc"</span><span class="p">,</span> <span class="s2">"test.log_loss"</span><span class="p">,</span> <span class="s2">"test.brier"</span><span class="p">,</span> <span class="s2">"test.ece"</span><span class="p">,</span> <span class="s2">"test.accuracy"</span><span class="p">,</span> <span class="s2">"test.precision"</span><span class="p">,</span> <span class="s2">"test.recall"</span><span class="p">,</span> <span class="s2">"test.f1"</span><span class="p">]</span>
+<span class="n">s61</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">todos</span><span class="p">,</span> <span class="p">[</span><span class="s2">"grupo"</span><span class="p">,</span> <span class="s2">"modelo"</span><span class="p">],</span> <span class="n">mets</span><span class="p">)</span>
+<span class="n">t61</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">pretty</span><span class="p">(</span><span class="n">s61</span><span class="p">,</span> <span class="p">[</span><span class="s2">"grupo"</span><span class="p">,</span> <span class="s2">"modelo"</span><span class="p">],</span> <span class="n">mets</span><span class="p">,</span> <span class="n">ci</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">t61</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"grupo"</span><span class="p">,</span> <span class="s2">"modelo"</span><span class="p">]))</span>
+<span class="n">ci</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">pretty</span><span class="p">(</span><span class="n">s61</span><span class="p">,</span> <span class="p">[</span><span class="s2">"grupo"</span><span class="p">,</span> <span class="s2">"modelo"</span><span class="p">],</span> <span class="p">[</span><span class="s2">"test.roc_auc"</span><span class="p">,</span> <span class="s2">"test.log_loss"</span><span class="p">,</span> <span class="s2">"test.ece"</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">ci</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"grupo"</span><span class="p">,</span> <span class="s2">"modelo"</span><span class="p">])</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"semillas"</span><span class="p">))</span>
+<span class="n">s61</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SUMMARY</span> <span class="o">/</span> <span class="s2">"tabla_6_1.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>semillas</th>
+      <th>ROC AUC</th>
+      <th>PR AUC</th>
+      <th>Log loss</th>
+      <th>Brier</th>
+      <th>ECE</th>
+      <th>Accuracy</th>
+      <th>Precision</th>
+      <th>Recall</th>
+      <th>F1</th>
+    </tr>
+    <tr>
+      <th>grupo</th>
+      <th>modelo</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">scikit-learn · 1M</th>
+      <th>MLP · Frecuencia</th>
+      <td>5</td>
+      <td>0.6632 ± 0.0121</td>
+      <td>0.3036 ± 0.0115</td>
+      <td>0.4320 ± 0.0042</td>
+      <td>0.1338 ± 0.0018</td>
+      <td>0.0286 ± 0.0100</td>
+      <td>0.6374 ± 0.0352</td>
+      <td>0.2521 ± 0.0160</td>
+      <td>0.5748 ± 0.0524</td>
+      <td>0.3495 ± 0.0127</td>
+    </tr>
+    <tr>
+      <th>MLP · Hashing 2^14</th>
+      <td>5</td>
+      <td>0.7315 ± 0.0014</td>
+      <td>0.3606 ± 0.0013</td>
+      <td>0.4055 ± 0.0005</td>
+      <td>0.1262 ± 0.0001</td>
+      <td>0.0117 ± 0.0024</td>
+      <td>0.6926 ± 0.0085</td>
+      <td>0.3049 ± 0.0038</td>
+      <td>0.6366 ± 0.0201</td>
+      <td>0.4122 ± 0.0013</td>
+    </tr>
+    <tr>
+      <th>Gradient boosting · Frecuencia</th>
+      <td>5</td>
+      <td>0.7246 ± 0.0011</td>
+      <td>0.3500 ± 0.0011</td>
+      <td>0.4085 ± 0.0005</td>
+      <td>0.1270 ± 0.0001</td>
+      <td>0.0131 ± 0.0012</td>
+      <td>0.6783 ± 0.0078</td>
+      <td>0.2975 ± 0.0032</td>
+      <td>0.6607 ± 0.0167</td>
+      <td>0.4101 ± 0.0009</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Frecuencia</th>
+      <td>5</td>
+      <td>0.6777 ± 0.0024</td>
+      <td>0.2976 ± 0.0012</td>
+      <td>0.4285 ± 0.0013</td>
+      <td>0.1331 ± 0.0004</td>
+      <td>0.0231 ± 0.0043</td>
+      <td>0.6619 ± 0.0534</td>
+      <td>0.2705 ± 0.0150</td>
+      <td>0.5743 ± 0.0972</td>
+      <td>0.3648 ± 0.0049</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Hashing 2^14</th>
+      <td>5</td>
+      <td>0.7273 ± 0.0019</td>
+      <td>0.3518 ± 0.0017</td>
+      <td>0.4084 ± 0.0019</td>
+      <td>0.1272 ± 0.0006</td>
+      <td>0.0175 ± 0.0109</td>
+      <td>0.6758 ± 0.0159</td>
+      <td>0.2952 ± 0.0057</td>
+      <td>0.6578 ± 0.0363</td>
+      <td>0.4072 ± 0.0030</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">PySpark · 100k</th>
+      <th>Regresión logística · Hashing 2^12</th>
+      <td>1</td>
+      <td>0.7140 ± 0.0000</td>
+      <td>0.3276 ± 0.0000</td>
+      <td>0.4175 ± 0.0000</td>
+      <td>0.1304 ± 0.0000</td>
+      <td>0.0277 ± 0.0000</td>
+      <td>0.6346 ± 0.0000</td>
+      <td>0.2738 ± 0.0000</td>
+      <td>0.7013 ± 0.0000</td>
+      <td>0.3938 ± 0.0000</td>
+    </tr>
+    <tr>
+      <th>MLP · Hashing 2^12</th>
+      <td>1</td>
+      <td>0.7109 ± 0.0000</td>
+      <td>0.3275 ± 0.0000</td>
+      <td>0.4155 ± 0.0000</td>
+      <td>0.1293 ± 0.0000</td>
+      <td>0.0128 ± 0.0000</td>
+      <td>0.6363 ± 0.0000</td>
+      <td>0.2745 ± 0.0000</td>
+      <td>0.6992 ± 0.0000</td>
+      <td>0.3943 ± 0.0000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>ROC AUC</th>
+      <th>Log loss</th>
+      <th>ECE</th>
+    </tr>
+    <tr>
+      <th>grupo</th>
+      <th>modelo</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">scikit-learn · 1M</th>
+      <th>MLP · Frecuencia</th>
+      <td>0.6632 ± 0.0121 [0.6482, 0.6783]</td>
+      <td>0.4320 ± 0.0042 [0.4268, 0.4373]</td>
+      <td>0.0286 ± 0.0100 [0.0162, 0.0411]</td>
+    </tr>
+    <tr>
+      <th>MLP · Hashing 2^14</th>
+      <td>0.7315 ± 0.0014 [0.7297, 0.7333]</td>
+      <td>0.4055 ± 0.0005 [0.4048, 0.4062]</td>
+      <td>0.0117 ± 0.0024 [0.0087, 0.0147]</td>
+    </tr>
+    <tr>
+      <th>Gradient boosting · Frecuencia</th>
+      <td>0.7246 ± 0.0011 [0.7232, 0.7260]</td>
+      <td>0.4085 ± 0.0005 [0.4079, 0.4091]</td>
+      <td>0.0131 ± 0.0012 [0.0115, 0.0146]</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Frecuencia</th>
+      <td>0.6777 ± 0.0024 [0.6747, 0.6807]</td>
+      <td>0.4285 ± 0.0013 [0.4269, 0.4301]</td>
+      <td>0.0231 ± 0.0043 [0.0178, 0.0284]</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Hashing 2^14</th>
+      <td>0.7273 ± 0.0019 [0.7250, 0.7296]</td>
+      <td>0.4084 ± 0.0019 [0.4060, 0.4107]</td>
+      <td>0.0175 ± 0.0109 [0.0040, 0.0311]</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">PySpark · 100k</th>
+      <th>Regresión logística · Hashing 2^12</th>
+      <td>0.7140 ± 0.0000</td>
+      <td>0.4175 ± 0.0000</td>
+      <td>0.0277 ± 0.0000</td>
+    </tr>
+    <tr>
+      <th>MLP · Hashing 2^12</th>
+      <td>0.7109 ± 0.0000</td>
+      <td>0.4155 ± 0.0000</td>
+      <td>0.0128 ± 0.0000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="curvas-roc-y-pr">
+<h2>6.2 Curvas ROC y PR<a class="headerlink" href="#curvas-roc-y-pr" title="Link to this heading">#</a></h2>
+<p>Superponemos las curvas de la semilla mediana (por ROC AUC) de cada modelo. En la curva PR, la línea horizontal es la tasa de clics del día de prueba, el valor de un clasificador aleatorio.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Curvas: MLP con la codificación elegida y líneas base principales de scikit-learn, y todos los modelos de Spark.</span>
+<span class="n">clave</span> <span class="o">=</span> <span class="p">(</span><span class="n">todos</span><span class="p">[</span><span class="s2">"env"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"PySpark"</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">todos</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"mlp"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">todos</span><span class="p">[</span><span class="s2">"encoding"</span><span class="p">]</span> <span class="o">==</span> <span class="n">best_enc</span><span class="p">))</span> <span class="o">|</span> \
+        <span class="p">((</span><span class="n">todos</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"lr"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">todos</span><span class="p">[</span><span class="s2">"encoding"</span><span class="p">]</span> <span class="o">==</span> <span class="n">C</span><span class="o">.</span><span class="n">MLP_TUNE_ENCODING</span><span class="p">))</span> <span class="o">|</span> <span class="p">(</span><span class="n">todos</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"hgb"</span><span class="p">)</span>
+<span class="n">sel</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">gname</span><span class="p">,</span> <span class="n">mname</span><span class="p">),</span> <span class="n">g</span> <span class="ow">in</span> <span class="n">todos</span><span class="p">[</span><span class="n">clave</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"grupo"</span><span class="p">,</span> <span class="s2">"modelo"</span><span class="p">],</span> <span class="n">sort</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">median_seed</span><span class="p">(</span><span class="n">g</span><span class="p">)</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">preds</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">p</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">sel</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mname</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">gname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' · '</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">gname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' · '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">))</span>
+<span class="n">pal</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"#1C2541"</span><span class="p">,</span> <span class="s2">"#3A506B"</span><span class="p">,</span> <span class="s2">"#5C7A8C"</span><span class="p">,</span> <span class="s2">"#9DB4C0"</span><span class="p">,</span> <span class="s2">"#5BC0BE"</span><span class="p">,</span> <span class="s2">"#C8553D"</span><span class="p">,</span> <span class="s2">"#E0A458"</span><span class="p">,</span> <span class="s2">"#7A9E7E"</span><span class="p">,</span> <span class="s2">"#8E7DBE"</span><span class="p">,</span> <span class="s2">"#444444"</span><span class="p">,</span> <span class="s2">"#B5838D"</span><span class="p">,</span> <span class="s2">"#6D6875"</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">4.6</span><span class="p">))</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">cc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">pal</span><span class="p">):</span>
+    <span class="n">ls</span> <span class="o">=</span> <span class="s2">"-"</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"env"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"scikit-learn"</span> <span class="k">else</span> <span class="s2">"--"</span>
+    <span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">roc_curve</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'test.roc_auc'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">pr</span><span class="p">,</span> <span class="n">rc</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">precision_recall_curve</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">p</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rc</span><span class="p">,</span> <span class="n">pr</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'test.pr_auc'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">":"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"tasa de falsos positivos"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"tasa de verdaderos positivos"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Curva ROC (semilla mediana)"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mf">6.5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"lower right"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">":"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"recall"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"precision"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Curva PR (semilla mediana)"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mf">6.5</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"upper right"</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"6_2_roc_pr"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/29a35401882fe53c0178c16d31d4979b79a756c86e1457baaa31a21c139c3224.png" src="_images/29a35401882fe53c0178c16d31d4979b79a756c86e1457baaa31a21c139c3224.png" />
+</div>
+</div>
+</section>
+<section id="calibracion">
+<h2>6.3 Calibración<a class="headerlink" href="#calibracion" title="Link to this heading">#</a></h2>
+<p>Una probabilidad está calibrada si, entre las impresiones a las que el modelo asigna una probabilidad cercana a <span class="math notranslate nohighlight">\(p\)</span>, la fracción de clics es cercana a <span class="math notranslate nohighlight">\(p\)</span>. La curva de calibración grafica la probabilidad media predicha contra la frecuencia observada en cada contenedor; la diagonal es la calibración perfecta.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">4.2</span><span class="p">))</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">cc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">pal</span><span class="p">):</span>
+    <span class="n">ls</span> <span class="o">=</span> <span class="s2">"-"</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"env"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"scikit-learn"</span> <span class="k">else</span> <span class="s2">"--"</span>
+    <span class="n">mp</span><span class="p">,</span> <span class="n">fo</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">calibration_points</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">mp</span><span class="p">,</span> <span class="n">fo</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+<span class="n">lim</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()[</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="n">lim</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">lim</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">":"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"probabilidad media predicha"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"frecuencia observada de clics"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Curva de calibración (15 contenedores de igual frecuencia)"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mf">6.5</span><span class="p">)</span>
+<span class="n">e</span> <span class="o">=</span> <span class="n">s61</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"test.ece|media"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s2">"modelo"</span><span class="p">]</span> <span class="o">+</span> <span class="s2">" · "</span> <span class="o">+</span> <span class="n">e</span><span class="p">[</span><span class="s2">"grupo"</span><span class="p">],</span> <span class="n">e</span><span class="p">[</span><span class="s2">"test.ece|media"</span><span class="p">],</span> <span class="n">xerr</span><span class="o">=</span><span class="n">e</span><span class="p">[</span><span class="s2">"test.ece|de"</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">C</span><span class="o">.</span><span class="n">BAR</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"ECE (media ± DE entre semillas)"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Error de calibración esperado"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"6_3_calibracion"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/c7e52d65a9aa8738dbca9febd2e25ea906fb53a3734e75429c7857faa8081731.png" src="_images/c7e52d65a9aa8738dbca9febd2e25ea906fb53a3734e75429c7857faa8081731.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mejor_cal</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">peor_cal</span> <span class="o">=</span> <span class="n">e</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">sesgo</span> <span class="o">=</span> <span class="n">todos</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"grupo"</span><span class="p">,</span> <span class="s2">"modelo"</span><span class="p">])[</span><span class="s2">"test.mean_pred"</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">-</span> <span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"El modelo mejor calibrado es </span><span class="si">{</span><span class="n">mejor_cal</span><span class="p">[</span><span class="s1">'modelo'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">mejor_cal</span><span class="p">[</span><span class="s1">'grupo'</span><span class="p">]</span><span class="si">}</span><span class="s2">), con ECE </span><span class="si">{</span><span class="n">mejor_cal</span><span class="p">[</span><span class="s1">'test.ece|media'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">; el peor es "</span>
+    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">peor_cal</span><span class="p">[</span><span class="s1">'modelo'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">peor_cal</span><span class="p">[</span><span class="s1">'grupo'</span><span class="p">]</span><span class="si">}</span><span class="s2">), con </span><span class="si">{</span><span class="n">peor_cal</span><span class="p">[</span><span class="s1">'test.ece|media'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">. La tasa de clics del día de prueba es </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">pct</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">; "</span>
+    <span class="sa">f</span><span class="s2">"la probabilidad media predicha se desvía de ella entre </span><span class="si">{</span><span class="n">sesgo</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2"> y </span><span class="si">{</span><span class="n">sesgo</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2"> según el modelo."</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"ninguna transformación usa la etiqueta del día de prueba, por lo que la diferencia entre la probabilidad media y la tasa observada refleja la deriva del CTR entre días."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"si un sistema de pujas usara estas probabilidades, convendría recalibrarlas con el día más reciente disponible (por ejemplo, con regresión isotónica sobre validación)."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"el ECE depende del número y del tipo de contenedores; lo complementamos con el log loss y el Brier, que no dependen de esa elección."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="hallazgos-y-decisiones">Hallazgos y decisiones</h3>
+<p>El modelo mejor calibrado es MLP · Hashing 2^14 (scikit-learn · 1M), con ECE 0.0117; el peor es MLP · Frecuencia (scikit-learn · 1M), con 0.0286. La tasa de clics del día de prueba es 16.93 %; la probabilidad media predicha se desvía de ella entre +0.0025 y +0.0217 según el modelo.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> ninguna transformación usa la etiqueta del día de prueba, por lo que la diferencia entre la probabilidad media y la tasa observada refleja la deriva del CTR entre días.</p></li>
+<li><p><strong>Modelado:</strong> si un sistema de pujas usara estas probabilidades, convendría recalibrarlas con el día más reciente disponible (por ejemplo, con regresión isotónica sobre validación).</p></li>
+<li><p><strong>Riesgos:</strong> el ECE depende del número y del tipo de contenedores; lo complementamos con el log loss y el Brier, que no dependen de esa elección.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="umbral-de-decision-y-matriz-de-confusion">
+<h2>6.4 Umbral de decisión y matriz de confusión<a class="headerlink" href="#umbral-de-decision-y-matriz-de-confusion" title="Link to this heading">#</a></h2>
+<p>El umbral se elige en validación como el que maximiza el F1 y se aplica sin cambios en prueba. Mostramos las matrices de confusión de la semilla mediana del MLP de scikit-learn y del MLP de Spark.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mlps</span> <span class="o">=</span> <span class="p">[(</span><span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sel</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"mlp"</span> <span class="ow">and</span> <span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"env"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"PySpark"</span> <span class="ow">or</span> <span class="n">r</span><span class="p">[</span><span class="s2">"encoding"</span><span class="p">]</span> <span class="o">==</span> <span class="n">best_enc</span><span class="p">)]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mlps</span><span class="p">),</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mf">5.2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">mlps</span><span class="p">),</span> <span class="mf">3.8</span><span class="p">),</span> <span class="n">squeeze</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mlps</span><span class="p">):</span>
+    <span class="n">cm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">r</span><span class="p">[</span><span class="s2">"test.tn"</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">"test.fp"</span><span class="p">]],</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">"test.fn"</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">"test.tp"</span><span class="p">]]])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">cm</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">"Blues"</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">num</span><span class="p">(</span><span class="n">cm</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">])</span><span class="si">}</span><span class="se">\n</span><span class="s2">(</span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">cm</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cm</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> %)"</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s2">"white"</span> <span class="k">if</span> <span class="n">cm</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cm</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">"#0B132B"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s2">"pred. 0"</span><span class="p">,</span> <span class="s2">"pred. 1"</span><span class="p">]);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="s2">"real 0"</span><span class="p">,</span> <span class="s2">"real 1"</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="se">\n</span><span class="s2">umbral </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'test.threshold'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"6_4_confusion"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/08d27e341fddee83d4874895b770fea326d1a3adf3dcf112ced38d388102534a.png" src="_images/08d27e341fddee83d4874895b770fea326d1a3adf3dcf112ced38d388102534a.png" />
+</div>
+</div>
+</section>
+<section id="lift-y-ganancia-acumulada">
+<h2>6.5 Lift y ganancia acumulada<a class="headerlink" href="#lift-y-ganancia-acumulada" title="Link to this heading">#</a></h2>
+<p>Si una campaña solo puede mostrar el anuncio a una fracción <span class="math notranslate nohighlight">\(q\)</span> de las impresiones, conviene elegir las de mayor probabilidad estimada. La <strong>ganancia acumulada</strong> es la fracción de todos los clics que se capturan con ese <span class="math notranslate nohighlight">\(q\)</span> %, y el <strong>lift</strong> de un decil es su CTR dividido entre el CTR global. Un modelo aleatorio tiene ganancia <span class="math notranslate nohighlight">\(q\)</span> y lift 1.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">))</span>
+<span class="n">lifts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="n">cc</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">pal</span><span class="p">):</span>
+    <span class="n">ls</span> <span class="o">=</span> <span class="s2">"-"</span> <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">"env"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"scikit-learn"</span> <span class="k">else</span> <span class="s2">"--"</span>
+    <span class="n">lg</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">lift_gain</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">lg</span><span class="p">[</span><span class="s2">"q"</span><span class="p">],</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">lg</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span> <span class="n">lg</span><span class="p">[</span><span class="s2">"lift_decil"</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">ms</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="n">ls</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">1.1</span><span class="p">)</span>
+    <span class="n">lifts</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">lg</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">":"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"</span><span class="si">% d</span><span class="s2">e impresiones (ordenadas por probabilidad)"</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"</span><span class="si">% d</span><span class="s2">e clics capturados"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Ganancia acumulada"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mf">6.5</span><span class="p">)</span>
+<span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">":"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"decil (1 = mayor probabilidad)"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"lift"</span><span class="p">);</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Lift por decil"</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"6_5_lift"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">g20</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s2">"gain"</span><span class="p">][</span><span class="mi">20</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lifts</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">l1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span><span class="p">[</span><span class="s2">"lift_decil"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">lifts</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+<span class="n">display</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"</span><span class="si">% d</span><span class="s2">e clics en el 20 </span><span class="si">% s</span><span class="s2">uperior"</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">g20</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="s2">"lift del primer decil"</span><span class="p">:</span> <span class="n">l1</span><span class="p">[</span><span class="n">g20</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)}))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/8372d91274809ccc6ab2e92ca27a8106b4a01488c784a7ff6584d70377793522.png" src="_images/8372d91274809ccc6ab2e92ca27a8106b4a01488c784a7ff6584d70377793522.png" />
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>% de clics en el 20 % superior</th>
+      <th>lift del primer decil</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>MLP · Hashing 2^14 (scikit-learn, 1M)</th>
+      <td>41.9</td>
+      <td>2.46</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Hashing 2^14 (scikit-learn, 1M)</th>
+      <td>40.9</td>
+      <td>2.37</td>
+    </tr>
+    <tr>
+      <th>Gradient boosting · Frecuencia (scikit-learn, 1M)</th>
+      <td>40.4</td>
+      <td>2.33</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Hashing 2^12 (PySpark, 100k)</th>
+      <td>39.7</td>
+      <td>2.25</td>
+    </tr>
+    <tr>
+      <th>MLP · Hashing 2^12 (PySpark, 100k)</th>
+      <td>39.0</td>
+      <td>2.22</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"Con el 20 % de impresiones de mayor probabilidad, el mejor modelo (</span><span class="si">{</span><span class="n">g20</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">) captura </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">pct</span><span class="p">(</span><span class="n">g20</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">}</span><span class="s2"> de los clics y el más débil "</span>
+    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">pct</span><span class="p">(</span><span class="n">g20</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="si">}</span><span class="s2">; un modelo aleatorio capturaría 20 %. El lift del primer decil va de </span><span class="si">{</span><span class="n">l1</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="n">l1</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"las curvas usan la semilla mediana de cada modelo y todo el día de prueba."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"las diferencias en ganancia acumulada se concentran en el primer decil, donde el modelo decide qué impresiones priorizar."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"el lift supone que el costo de mostrar el anuncio es igual para todas las impresiones; en una subasta real el costo varía."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id1">Hallazgos y decisiones</h3>
+<p>Con el 20 % de impresiones de mayor probabilidad, el mejor modelo (MLP · Hashing 2^14 (scikit-learn, 1M)) captura 41.9 % de los clics y el más débil 39.0 %; un modelo aleatorio capturaría 20 %. El lift del primer decil va de 2.22 a 2.46.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> las curvas usan la semilla mediana de cada modelo y todo el día de prueba.</p></li>
+<li><p><strong>Modelado:</strong> las diferencias en ganancia acumulada se concentran en el primer decil, donde el modelo decide qué impresiones priorizar.</p></li>
+<li><p><strong>Riesgos:</strong> el lift supone que el costo de mostrar el anuncio es igual para todas las impresiones; en una subasta real el costo varía.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="inferencia-estadistica">
+<h2>6.6 Inferencia estadística<a class="headerlink" href="#inferencia-estadistica" title="Link to this heading">#</a></h2>
+<p>Usamos cuatro procedimientos complementarios:</p>
+<ul class="simple">
+<li><p><strong>Intervalos bootstrap percentil</strong> del ROC AUC de la semilla mediana de cada modelo, con 1000 remuestreos de una submuestra fija de 500 mil impresiones del día de prueba (Efron y Tibshirani, 1993). Reflejan la variación por la muestra de prueba.</p></li>
+<li><p><strong>Prueba de DeLong</strong> para dos AUC medidas sobre las mismas impresiones (DeLong et al., 1988), con el algoritmo rápido de Sun y Xu (2014). La aplicamos semilla por semilla.</p></li>
+<li><p><strong>Prueba de McNemar</strong> sobre las clasificaciones con el umbral de validación (McNemar, 1947): compara cuántas impresiones acierta solo un modelo frente a cuántas acierta solo el otro.</p></li>
+<li><p><strong>Prueba <span class="math notranslate nohighlight">\(t\)</span> pareada entre semillas</strong> sobre la diferencia de ROC AUC, con corrección de Holm por las tres comparaciones (Holm, 1979). Refleja la variación por el entrenamiento.</p></li>
+</ul>
+<p>Con millones de impresiones de prueba, DeLong y McNemar detectan diferencias muy pequeñas; por eso exigimos además que la diferencia media alcance <span class="math notranslate nohighlight">\(\delta = 0.005\)</span>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">boot</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">sel</span><span class="p">:</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">bootstrap_ci</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">p</span><span class="p">)</span>
+    <span class="n">boot</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"modelo"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"ROC AUC"</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="s2">"estimate"</span><span class="p">],</span> <span class="s2">"IC bootstrap inf"</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="s2">"lo"</span><span class="p">],</span> <span class="s2">"IC bootstrap sup"</span><span class="p">:</span> <span class="n">b</span><span class="p">[</span><span class="s2">"hi"</span><span class="p">]})</span>
+<span class="n">boot</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">boot</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"modelo"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">boot</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ROC AUC</th>
+      <th>IC bootstrap inf</th>
+      <th>IC bootstrap sup</th>
+    </tr>
+    <tr>
+      <th>modelo</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>MLP · Hashing 2^14 (scikit-learn, 1M)</th>
+      <td>0.7325</td>
+      <td>0.7307</td>
+      <td>0.7341</td>
+    </tr>
+    <tr>
+      <th>Gradient boosting · Frecuencia (scikit-learn, 1M)</th>
+      <td>0.7256</td>
+      <td>0.7237</td>
+      <td>0.7273</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Hashing 2^14 (scikit-learn, 1M)</th>
+      <td>0.7283</td>
+      <td>0.7266</td>
+      <td>0.7300</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Hashing 2^12 (PySpark, 100k)</th>
+      <td>0.7136</td>
+      <td>0.7117</td>
+      <td>0.7153</td>
+    </tr>
+    <tr>
+      <th>MLP · Hashing 2^12 (PySpark, 100k)</th>
+      <td>0.7112</td>
+      <td>0.7095</td>
+      <td>0.7130</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">mlp</span> <span class="o">=</span> <span class="n">enc</span><span class="p">[</span><span class="n">enc</span><span class="p">[</span><span class="s2">"encoding"</span><span class="p">]</span> <span class="o">==</span> <span class="n">best_enc</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"seed"</span><span class="p">)</span>
+<span class="n">bases</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Regresión logística · "</span> <span class="o">+</span> <span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="n">C</span><span class="o">.</span><span class="n">MLP_TUNE_ENCODING</span><span class="p">]:</span> <span class="p">(</span><span class="s2">"lr"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">MLP_TUNE_ENCODING</span><span class="p">),</span>
+         <span class="s2">"Regresión logística · Frecuencia"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"lr"</span><span class="p">,</span> <span class="s2">"freq"</span><span class="p">),</span> <span class="s2">"Gradient boosting · Frecuencia"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hgb"</span><span class="p">,</span> <span class="s2">"freq"</span><span class="p">)}</span>
+<span class="n">bl</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">"scikit-learn"</span><span class="p">,</span> <span class="s2">"baselines"</span><span class="p">)</span>
+<span class="n">rows</span><span class="p">,</span> <span class="n">dl</span><span class="p">,</span> <span class="n">mc</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">nombre</span><span class="p">,</span> <span class="p">(</span><span class="n">kind</span><span class="p">,</span> <span class="n">e_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">bases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">bl</span><span class="p">[(</span><span class="n">bl</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">==</span> <span class="n">kind</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">bl</span><span class="p">[</span><span class="s2">"encoding"</span><span class="p">]</span> <span class="o">==</span> <span class="n">e_</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"seed"</span><span class="p">)</span>
+    <span class="n">seeds</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mlp</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">paired_t</span><span class="p">(</span><span class="n">mlp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">seeds</span><span class="p">,</span> <span class="s2">"test.roc_auc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">b</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">seeds</span><span class="p">,</span> <span class="s2">"test.roc_auc"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"comparación"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"MLP (</span><span class="si">{</span><span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="n">best_enc</span><span class="p">]</span><span class="si">}</span><span class="s2">) − </span><span class="si">{</span><span class="n">nombre</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="o">**</span><span class="n">t</span><span class="p">})</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">seeds</span><span class="p">:</span>
+        <span class="n">pm</span><span class="p">,</span> <span class="n">pb</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">preds</span><span class="p">(</span><span class="n">mlp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="p">]),</span> <span class="n">R</span><span class="o">.</span><span class="n">preds</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">delong_test</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pm</span><span class="p">,</span> <span class="n">pb</span><span class="p">)</span>
+        <span class="n">mn</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">mcnemar_test</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">(</span><span class="n">pm</span> <span class="o">&gt;=</span> <span class="n">mlp</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="s2">"test.threshold"</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span> <span class="p">(</span><span class="n">pb</span> <span class="o">&gt;=</span> <span class="n">b</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="p">,</span> <span class="s2">"test.threshold"</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">))</span>
+        <span class="n">dl</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"comparación"</span><span class="p">:</span> <span class="n">nombre</span><span class="p">,</span> <span class="s2">"semilla"</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s2">"ΔAUC"</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">"diff"</span><span class="p">],</span> <span class="s2">"z"</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">"z"</span><span class="p">],</span> <span class="s2">"p DeLong"</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">"p"</span><span class="p">]})</span>
+        <span class="n">mc</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"comparación"</span><span class="p">:</span> <span class="n">nombre</span><span class="p">,</span> <span class="s2">"semilla"</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s2">"solo MLP acierta"</span><span class="p">:</span> <span class="n">mn</span><span class="p">[</span><span class="s2">"b_solo_1_acierta"</span><span class="p">],</span> <span class="s2">"solo base acierta"</span><span class="p">:</span> <span class="n">mn</span><span class="p">[</span><span class="s2">"c_solo_2_acierta"</span><span class="p">],</span> <span class="s2">"p McNemar"</span><span class="p">:</span> <span class="n">mn</span><span class="p">[</span><span class="s2">"p"</span><span class="p">]})</span>
+<span class="n">p3</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"comparación"</span><span class="p">)</span>
+<span class="n">p3</span><span class="p">[</span><span class="s2">"p Holm"</span><span class="p">]</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">holm</span><span class="p">(</span><span class="n">p3</span><span class="p">[</span><span class="s2">"p"</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+<span class="n">p3</span><span class="p">[</span><span class="s2">"significativa y ≥ δ"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">p3</span><span class="p">[</span><span class="s2">"p Holm"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">C</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">p3</span><span class="p">[</span><span class="s2">"diff"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">C</span><span class="o">.</span><span class="n">DELTA_AUC</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">p3</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"diff"</span><span class="p">:</span> <span class="s2">"ΔAUC medio"</span><span class="p">,</span> <span class="s2">"lo"</span><span class="p">:</span> <span class="s2">"IC inf"</span><span class="p">,</span> <span class="s2">"hi"</span><span class="p">:</span> <span class="s2">"IC sup"</span><span class="p">,</span> <span class="s2">"n"</span><span class="p">:</span> <span class="s2">"semillas"</span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">dl</span><span class="p">,</span> <span class="n">mc</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dl</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">mc</span><span class="p">)</span>
+<span class="n">res_dl</span> <span class="o">=</span> <span class="n">dl</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"comparación"</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s2">"ΔAUC medio"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"ΔAUC"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">),</span> <span class="s2">"p DeLong máx"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"p DeLong"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">),</span>
+                                         <span class="s2">"semillas con p &lt; 0.05"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"p DeLong"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span><span class="p">((</span><span class="n">s</span> <span class="o">&lt;</span> <span class="n">C</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()))})</span>
+<span class="n">res_mc</span> <span class="o">=</span> <span class="n">mc</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"comparación"</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="s2">"p McNemar máx"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"p McNemar"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">),</span> <span class="s2">"semillas con p &lt; 0.05"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"p McNemar"</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="nb">int</span><span class="p">((</span><span class="n">s</span> <span class="o">&lt;</span> <span class="n">C</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())),</span>
+                                         <span class="s2">"solo MLP acierta (media)"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"solo MLP acierta"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">),</span> <span class="s2">"solo base acierta (media)"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"solo base acierta"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">)})</span>
+<span class="n">display</span><span class="p">(</span><span class="n">res_dl</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">));</span> <span class="n">display</span><span class="p">(</span><span class="n">res_mc</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">p3</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SUMMARY</span> <span class="o">/</span> <span class="s2">"p3_pruebas.csv"</span><span class="p">);</span> <span class="n">dl</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SUMMARY</span> <span class="o">/</span> <span class="s2">"p3_delong_por_semilla.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">);</span> <span class="n">mc</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SUMMARY</span> <span class="o">/</span> <span class="s2">"p3_mcnemar_por_semilla.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ΔAUC medio</th>
+      <th>IC inf</th>
+      <th>IC sup</th>
+      <th>t</th>
+      <th>p</th>
+      <th>semillas</th>
+      <th>p Holm</th>
+      <th>significativa y ≥ δ</th>
+    </tr>
+    <tr>
+      <th>comparación</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>MLP (Hashing 2^14) − Regresión logística · Hashing 2^14</th>
+      <td>0.0042</td>
+      <td>0.0006</td>
+      <td>0.0078</td>
+      <td>3.2490</td>
+      <td>0.0314</td>
+      <td>5</td>
+      <td>0.0314</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>MLP (Hashing 2^14) − Regresión logística · Frecuencia</th>
+      <td>0.0538</td>
+      <td>0.0493</td>
+      <td>0.0583</td>
+      <td>33.3701</td>
+      <td>0.0000</td>
+      <td>5</td>
+      <td>0.0000</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>MLP (Hashing 2^14) − Gradient boosting · Frecuencia</th>
+      <td>0.0069</td>
+      <td>0.0053</td>
+      <td>0.0085</td>
+      <td>11.8100</td>
+      <td>0.0003</td>
+      <td>5</td>
+      <td>0.0006</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>ΔAUC medio</th>
+      <th>p DeLong máx</th>
+      <th>semillas con p &lt; 0.05</th>
+    </tr>
+    <tr>
+      <th>comparación</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Gradient boosting · Frecuencia</th>
+      <td>0.0069</td>
+      <td>0.0</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Frecuencia</th>
+      <td>0.0538</td>
+      <td>0.0</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Hashing 2^14</th>
+      <td>0.0042</td>
+      <td>0.0</td>
+      <td>5</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>p McNemar máx</th>
+      <th>semillas con p &lt; 0.05</th>
+      <th>solo MLP acierta (media)</th>
+      <th>solo base acierta (media)</th>
+    </tr>
+    <tr>
+      <th>comparación</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Gradient boosting · Frecuencia</th>
+      <td>0.0</td>
+      <td>5</td>
+      <td>272892.2</td>
+      <td>212358.6</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Frecuencia</th>
+      <td>0.0</td>
+      <td>5</td>
+      <td>548421.4</td>
+      <td>418605.0</td>
+    </tr>
+    <tr>
+      <th>Regresión logística · Hashing 2^14</th>
+      <td>0.0</td>
+      <td>5</td>
+      <td>270294.0</td>
+      <td>199163.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">gana</span> <span class="o">=</span> <span class="n">p3</span><span class="p">[</span><span class="n">p3</span><span class="p">[</span><span class="s2">"significativa y ≥ δ"</span><span class="p">]]</span>
+<span class="n">sig_no_rel</span> <span class="o">=</span> <span class="n">p3</span><span class="p">[(</span><span class="n">p3</span><span class="p">[</span><span class="s2">"p Holm"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">C</span><span class="o">.</span><span class="n">ALPHA</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">p3</span><span class="p">[</span><span class="s2">"diff"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">C</span><span class="o">.</span><span class="n">DELTA_AUC</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">p3</span><span class="p">[</span><span class="s2">"diff"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)]</span>
+<span class="n">peor</span> <span class="o">=</span> <span class="n">p3</span><span class="p">[</span><span class="n">p3</span><span class="p">[</span><span class="s2">"diff"</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">]</span>
+<span class="n">txt</span> <span class="o">=</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"Frente a </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">p3</span><span class="p">)</span><span class="si">}</span><span class="s2"> líneas base, el MLP con </span><span class="si">{</span><span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="n">best_enc</span><span class="p">]</span><span class="si">}</span><span class="s2"> logra una mejora significativa y mayor que δ en "</span>
+       <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gana</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span> <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">" (</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' − '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">gana</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2">)"</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gana</span><span class="p">)</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span> <span class="o">+</span> <span class="s2">". "</span><span class="p">)</span>
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sig_no_rel</span><span class="p">):</span>
+    <span class="n">txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"Contra </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' − '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">sig_no_rel</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2"> la diferencia es significativa pero menor que δ. "</span>
+<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">peor</span><span class="p">):</span>
+    <span class="n">txt</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"Contra </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">' − '</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">peor</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="si">}</span><span class="s2"> el MLP obtiene en promedio un AUC menor. "</span>
+<span class="n">txt</span> <span class="o">+=</span> <span class="s2">"Las pruebas de DeLong y McNemar por semilla se resumen en las dos tablas anteriores."</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span><span class="n">txt</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"todas las comparaciones usan las mismas impresiones de prueba en el mismo orden, por lo que las pruebas están pareadas por observación y por semilla."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"rechazamos $H_0$ de P3 frente a "</span> <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">" − "</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gana</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">+</span> <span class="s2">"."</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gana</span><span class="p">)</span> <span class="k">else</span>
+                 <span class="s2">"no rechazamos $H_0$ de P3 con el criterio declarado: el MLP no supera a todas las líneas base por al menos δ con significancia."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"DeLong y McNemar suponen impresiones independientes; las impresiones de un mismo dispositivo están correlacionadas, por lo que sus valores $p$ son optimistas. La prueba $t$ entre semillas no depende de ese supuesto."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id2">Hallazgos y decisiones</h3>
+<p>Frente a 3 líneas base, el MLP con Hashing 2^14 logra una mejora significativa y mayor que δ en 2 (Regresión logística · Frecuencia, Gradient boosting · Frecuencia). Contra Regresión logística · Hashing 2^14 la diferencia es significativa pero menor que δ. Las pruebas de DeLong y McNemar por semilla se resumen en las dos tablas anteriores.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> todas las comparaciones usan las mismas impresiones de prueba en el mismo orden, por lo que las pruebas están pareadas por observación y por semilla.</p></li>
+<li><p><strong>Modelado:</strong> rechazamos <span class="math notranslate nohighlight">\(H_0\)</span> de P3 frente a Regresión logística · Frecuencia, Gradient boosting · Frecuencia.</p></li>
+<li><p><strong>Riesgos:</strong> DeLong y McNemar suponen impresiones independientes; las impresiones de un mismo dispositivo están correlacionadas, por lo que sus valores <span class="math notranslate nohighlight">\(p\)</span> son optimistas. La prueba <span class="math notranslate nohighlight">\(t\)</span> entre semillas no depende de ese supuesto.</p></li>
+</ul>
+</div>
+</div>
+<p><strong>Comparación entre entornos con el mismo modelo.</strong> Con la muestra de 100 mil filas, comparamos semilla por semilla los modelos equivalentes de scikit-learn y Spark (sección 4.1). Si los dos entornos implementan el mismo modelo, sus AUC no deberían diferir en más de <span class="math notranslate nohighlight">\(\delta\)</span>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sk_sc</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">"scikit-learn"</span><span class="p">,</span> <span class="s2">"scale"</span><span class="p">);</span> <span class="n">sp_sc</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">"PySpark"</span><span class="p">,</span> <span class="s2">"scale"</span><span class="p">)</span>
+<span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"lr_lbfgs"</span><span class="p">,</span> <span class="s2">"mlp_lbfgs"</span><span class="p">):</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">sk_sc</span><span class="p">[(</span><span class="n">sk_sc</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">==</span> <span class="n">kind</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sk_sc</span><span class="p">[</span><span class="s2">"size"</span><span class="p">]</span> <span class="o">==</span> <span class="n">C</span><span class="o">.</span><span class="n">SPARK_MLP_SIZE</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"seed"</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">sp_sc</span><span class="p">[(</span><span class="n">sp_sc</span><span class="p">[</span><span class="s2">"model"</span><span class="p">]</span> <span class="o">==</span> <span class="n">kind</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">sp_sc</span><span class="p">[</span><span class="s2">"size"</span><span class="p">]</span> <span class="o">==</span> <span class="n">C</span><span class="o">.</span><span class="n">SPARK_MLP_SIZE</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"seed"</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">index</span><span class="p">)):</span>
+        <span class="n">pa</span><span class="p">,</span> <span class="n">pb</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">preds</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="p">]),</span> <span class="n">R</span><span class="o">.</span><span class="n">preds</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">s</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">pa</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">pb</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">M</span><span class="o">.</span><span class="n">delong_test</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">pa</span><span class="p">,</span> <span class="n">pb</span><span class="p">)</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"modelo"</span><span class="p">:</span> <span class="n">R</span><span class="o">.</span><span class="n">label</span><span class="p">({</span><span class="s2">"model"</span><span class="p">:</span> <span class="n">kind</span><span class="p">,</span> <span class="s2">"encoding"</span><span class="p">:</span> <span class="n">C</span><span class="o">.</span><span class="n">P1_ENCODING</span><span class="p">}),</span> <span class="s2">"semilla"</span><span class="p">:</span> <span class="n">s</span><span class="p">,</span> <span class="s2">"AUC scikit-learn"</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">"auc_1"</span><span class="p">],</span>
+                     <span class="s2">"AUC PySpark"</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">"auc_2"</span><span class="p">],</span> <span class="s2">"Δ (sklearn − Spark)"</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">"diff"</span><span class="p">],</span> <span class="s2">"p DeLong"</span><span class="p">:</span> <span class="n">d</span><span class="p">[</span><span class="s2">"p"</span><span class="p">],</span>
+                     <span class="s2">"correlación de probabilidades"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">corrcoef</span><span class="p">(</span><span class="n">pa</span><span class="p">,</span> <span class="n">pb</span><span class="p">)[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])})</span>
+<span class="n">envs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span>
+<span class="n">R</span><span class="o">.</span><span class="n">tabla</span><span class="p">(</span><span class="n">envs</span><span class="p">,</span> <span class="p">[</span><span class="s2">"modelo"</span><span class="p">,</span> <span class="s2">"semilla"</span><span class="p">],</span> <span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<p><em>Sin datos: este experimento no se ejecutó dentro del límite de tiempo del cómputo (ver la sección de limitaciones y el anexo de reproducibilidad).</em></p>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">envs</span><span class="p">):</span>
+    <span class="n">em</span> <span class="o">=</span> <span class="n">envs</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"modelo"</span><span class="p">)[[</span><span class="s2">"Δ (sklearn − Spark)"</span><span class="p">,</span> <span class="s2">"correlación de probabilidades"</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">txt</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">: diferencia media de AUC </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'Δ (sklearn − Spark)'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2"> y correlación media de </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'correlación de probabilidades'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> entre las probabilidades de ambos entornos."</span>
+                   <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">em</span><span class="o">.</span><span class="n">iterrows</span><span class="p">())</span>
+    <span class="n">dentro</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">((</span><span class="n">em</span><span class="p">[</span><span class="s2">"Δ (sklearn − Spark)"</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">C</span><span class="o">.</span><span class="n">DELTA_AUC</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">txt</span><span class="p">,</span> <span class="n">dentro</span> <span class="o">=</span> <span class="s2">"No hay corridas equivalentes completas en ambos entornos."</span><span class="p">,</span> <span class="kc">False</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span><span class="n">txt</span> <span class="o">+</span> <span class="p">(</span><span class="s2">" Las diferencias quedan dentro de ±δ: los dos entornos producen modelos de calidad equivalente."</span> <span class="k">if</span> <span class="n">dentro</span> <span class="k">else</span>
+                  <span class="s2">" Al menos una diferencia supera δ; la atribuimos a las diferencias de implementación del optimizador y de la función hash."</span><span class="p">),</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"ambos entornos usan las mismas filas y el mismo umbral de raras; solo cambia la función hash."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"esta equivalencia es la condición de calidad de P1: el punto de cruce del capítulo 7 compara tiempos de modelos que predicen igual de bien."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"L-BFGS con un número fijo de iteraciones puede detenerse en puntos distintos según la implementación; la correlación entre probabilidades lo cuantifica."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id3">Hallazgos y decisiones</h3>
+<p>No hay corridas equivalentes completas en ambos entornos. Al menos una diferencia supera δ; la atribuimos a las diferencias de implementación del optimizador y de la función hash.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> ambos entornos usan las mismas filas y el mismo umbral de raras; solo cambia la función hash.</p></li>
+<li><p><strong>Modelado:</strong> esta equivalencia es la condición de calidad de P1: el punto de cruce del capítulo 7 compara tiempos de modelos que predicen igual de bien.</p></li>
+<li><p><strong>Riesgos:</strong> L-BFGS con un número fijo de iteraciones puede detenerse en puntos distintos según la implementación; la correlación entre probabilidades lo cuantifica.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="ponderacion-de-clases">
+<h2>6.7 Ponderación de clases<a class="headerlink" href="#ponderacion-de-clases" title="Link to this heading">#</a></h2>
+<p>La guía pide reportar métricas con y sin ponderación. Entrenamos el MLP con pesos <span class="math notranslate nohighlight">\(w_k = N / (2 N_k)\)</span>, que equilibran la contribución de clics y no clics a la pérdida, con la misma codificación y las mismas semillas.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">w</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">runs</span><span class="p">(</span><span class="s2">"scikit-learn"</span><span class="p">,</span> <span class="s2">"ablation_weight"</span><span class="p">)</span>
+<span class="n">base_w</span> <span class="o">=</span> <span class="n">enc</span><span class="p">[</span><span class="n">enc</span><span class="p">[</span><span class="s2">"encoding"</span><span class="p">]</span> <span class="o">==</span> <span class="n">best_enc</span><span class="p">]</span>
+<span class="n">cmp</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">base_w</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ponderación</span><span class="o">=</span><span class="s2">"sin pesos"</span><span class="p">),</span> <span class="n">w</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">ponderación</span><span class="o">=</span><span class="s2">"con pesos por clase"</span><span class="p">)])</span>
+<span class="n">mets_w</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"test.roc_auc"</span><span class="p">,</span> <span class="s2">"test.pr_auc"</span><span class="p">,</span> <span class="s2">"test.log_loss"</span><span class="p">,</span> <span class="s2">"test.ece"</span><span class="p">,</span> <span class="s2">"test.mean_pred"</span><span class="p">,</span> <span class="s2">"test.threshold"</span><span class="p">,</span> <span class="s2">"test.precision"</span><span class="p">,</span> <span class="s2">"test.recall"</span><span class="p">,</span> <span class="s2">"test.f1"</span><span class="p">]</span>
+<span class="n">sw</span> <span class="o">=</span> <span class="n">R</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span><span class="n">cmp</span><span class="p">,</span> <span class="p">[</span><span class="s2">"ponderación"</span><span class="p">],</span> <span class="n">mets_w</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">R</span><span class="o">.</span><span class="n">pretty</span><span class="p">(</span><span class="n">sw</span><span class="p">,</span> <span class="p">[</span><span class="s2">"ponderación"</span><span class="p">],</span> <span class="n">mets_w</span><span class="p">,</span> <span class="n">ci</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"test.mean_pred"</span><span class="p">:</span> <span class="s2">"probabilidad media"</span><span class="p">,</span> <span class="s2">"test.threshold"</span><span class="p">:</span> <span class="s2">"umbral"</span><span class="p">})</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"ponderación"</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>semillas</th>
+      <th>ROC AUC</th>
+      <th>PR AUC</th>
+      <th>Log loss</th>
+      <th>ECE</th>
+      <th>probabilidad media</th>
+      <th>umbral</th>
+      <th>Precision</th>
+      <th>Recall</th>
+      <th>F1</th>
+    </tr>
+    <tr>
+      <th>ponderación</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>sin pesos</th>
+      <td>5</td>
+      <td>0.7315 ± 0.0014</td>
+      <td>0.3606 ± 0.0013</td>
+      <td>0.4055 ± 0.0005</td>
+      <td>0.0117 ± 0.0024</td>
+      <td>0.1785 ± 0.0049</td>
+      <td>0.2137 ± 0.0071</td>
+      <td>0.3049 ± 0.0038</td>
+      <td>0.6366 ± 0.0201</td>
+      <td>0.4122 ± 0.0013</td>
+    </tr>
+    <tr>
+      <th>con pesos por clase</th>
+      <td>1</td>
+      <td>0.7334 ± 0.0000</td>
+      <td>0.3600 ± 0.0000</td>
+      <td>0.6197 ± 0.0000</td>
+      <td>0.2875 ± 0.0000</td>
+      <td>0.4568 ± 0.0000</td>
+      <td>0.5685 ± 0.0000</td>
+      <td>0.3046 ± 0.0000</td>
+      <td>0.6490 ± 0.0000</td>
+      <td>0.4146 ± 0.0000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">sw</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"ponderación"</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"sin pesos"</span><span class="p">],</span> <span class="n">sw</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"ponderación"</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"con pesos por clase"</span><span class="p">]</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"Con pesos por clase, el ROC AUC cambia en </span><span class="si">{</span><span class="n">b</span><span class="p">[</span><span class="s1">'test.roc_auc|media'</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="s1">'test.roc_auc|media'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2">, mientras la probabilidad media "</span>
+    <span class="sa">f</span><span class="s2">"pasa de </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="s1">'test.mean_pred|media'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="n">b</span><span class="p">[</span><span class="s1">'test.mean_pred|media'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> y el ECE de </span><span class="si">{</span><span class="n">a</span><span class="p">[</span><span class="s1">'test.ece|media'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="n">b</span><span class="p">[</span><span class="s1">'test.ece|media'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">. "</span>
+    <span class="sa">f</span><span class="s2">"El F1 con umbral de validación cambia en </span><span class="si">{</span><span class="n">b</span><span class="p">[</span><span class="s1">'test.f1|media'</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">a</span><span class="p">[</span><span class="s1">'test.f1|media'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"los pesos se calculan con la tasa de clics de la muestra de entrenamiento."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"la ponderación "</span> <span class="o">+</span> <span class="p">(</span><span class="s2">"eleva"</span> <span class="k">if</span> <span class="n">b</span><span class="p">[</span><span class="s2">"test.mean_pred|media"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">[</span><span class="s2">"test.mean_pred|media"</span><span class="p">]</span> <span class="k">else</span> <span class="s2">"modifica"</span><span class="p">)</span>
+                  <span class="o">+</span> <span class="s2">" las probabilidades predichas "</span> <span class="o">+</span> <span class="p">(</span><span class="s2">"sin cambiar el ordenamiento de forma relevante (|ΔAUC| &lt; δ)"</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="s2">"test.roc_auc|media"</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="s2">"test.roc_auc|media"</span><span class="p">])</span> <span class="o">&lt;</span> <span class="n">C</span><span class="o">.</span><span class="n">DELTA_AUC</span> <span class="k">else</span> <span class="s2">"y cambia el ordenamiento en más de δ"</span><span class="p">)</span>
+                  <span class="o">+</span> <span class="p">(</span><span class="s2">"; como el umbral se elige en validación, el F1 apenas cambia"</span> <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="s2">"test.f1|media"</span><span class="p">]</span> <span class="o">-</span> <span class="n">a</span><span class="p">[</span><span class="s2">"test.f1|media"</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mf">0.01</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+                  <span class="o">+</span> <span class="s2">". Para estimar probabilidades "</span> <span class="o">+</span> <span class="p">(</span><span class="s2">"preferimos entrenar sin pesos."</span> <span class="k">if</span> <span class="n">b</span><span class="p">[</span><span class="s2">"test.ece|media"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">a</span><span class="p">[</span><span class="s2">"test.ece|media"</span><span class="p">]</span> <span class="k">else</span> <span class="s2">"la ponderación no empeora la calibración en este caso."</span><span class="p">)),</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"un sistema que use las probabilidades ponderadas sin corregirlas sobreestimaría el CTR esperado de cada impresión."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id4">Hallazgos y decisiones</h3>
+<p>Con pesos por clase, el ROC AUC cambia en +0.0019, mientras la probabilidad media pasa de 0.178 a 0.457 y el ECE de 0.012 a 0.287. El F1 con umbral de validación cambia en +0.0025.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> los pesos se calculan con la tasa de clics de la muestra de entrenamiento.</p></li>
+<li><p><strong>Modelado:</strong> la ponderación eleva las probabilidades predichas sin cambiar el ordenamiento de forma relevante (|ΔAUC| &lt; δ); como el umbral se elige en validación, el F1 apenas cambia. Para estimar probabilidades preferimos entrenar sin pesos.</p></li>
+<li><p><strong>Riesgos:</strong> un sistema que use las probabilidades ponderadas sin corregirlas sobreestimaría el CTR esperado de cada impresión.</p></li>
+</ul>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="05_modelado_pyspark.html"
+       title="página anterior">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">anterior</p>
+        <p class="prev-next-title">5. Modelado con PySpark</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="07_benchmarking.html"
+       title="siguiente página">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">siguiente</p>
+        <p class="prev-next-title">7. Benchmarking computacional</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contenido
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tabla-de-metricas">6.1 Tabla de métricas</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#curvas-roc-y-pr">6.2 Curvas ROC y PR</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calibracion">6.3 Calibración</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#umbral-de-decision-y-matriz-de-confusion">6.4 Umbral de decisión y matriz de confusión</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#lift-y-ganancia-acumulada">6.5 Lift y ganancia acumulada</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inferencia-estadistica">6.6 Inferencia estadística</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ponderacion-de-clases">6.7 Ponderación de clases</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+Por Anyely Sanjuan Benavides y Juan David Díaz Fernández
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

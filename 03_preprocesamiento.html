@@ -1,0 +1,1514 @@
+
+<!DOCTYPE html>
+
+
+<html lang="es" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>3. Preprocesamiento &#8212; Predicción de clics en anuncios móviles con MLP</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css?v=8cd3d715" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/autores.css?v=fc0dcfce" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="_static/documentation_options.js?v=78d55cf8"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Haz clic para mostrar';</script>
+    <script>let toggleHintHide = 'Haz clic para ocultar';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
+    <script src="_static/translations.js?v=d190bf04"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '03_preprocesamiento';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Búsqueda" href="search.html" />
+    <link rel="next" title="4. Modelado con scikit-learn" href="04_modelado_sklearn.html" />
+    <link rel="prev" title="2. Análisis exploratorio de datos" href="02_eda.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="es"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Saltar al contenido principal</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Volver arriba</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Advertencia de versión"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Navegación del sitio">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="En esta página">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Predicción de clics en anuncios móviles con MLP</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><div class="sidebar-autores">
+  <div class="autor">
+    <img src="_static/autores/anyely.jpg" alt="Anyely Sanjuan Benavides">
+    <p class="autor-nombre">Anyely Sanjuan Benavides</p>
+    <p class="autor-detalle">Msc. Analítica de Datos<br>Universidad del Norte</p>
+  </div>
+  <div class="autor">
+    <img src="_static/autores/juan.jpg" alt="Juan David Díaz Fernández">
+    <p class="autor-nombre">Juan David Díaz Fernández</p>
+    <p class="autor-detalle">Msc. Ingeniería Mecánica<br>Universidad del Norte</p>
+  </div>
+</div></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Predicción de clics en anuncios móviles con MLP
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_problema_dataset.html">1. Definición del problema y ficha de datos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_eda.html">2. Análisis exploratorio de datos</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Preprocesamiento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_modelado_sklearn.html">4. Modelado con scikit-learn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_modelado_pyspark.html">5. Modelado con PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_evaluacion_estadistica.html">6. Evaluación estadística</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_benchmarking.html">7. Benchmarking computacional</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_interpretabilidad.html">8. Interpretabilidad local con LIME</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_comparacion.html">9. Comparación de resultados</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_reflexion_critica.html">10. Reflexión crítica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_anexo_reproducibilidad.html">Anexo A. Reproducibilidad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_referencias.html">Referencias</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/Anyita-12/Tareas-Deep-Learning" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Repositorio de origen"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Descarga esta pagina">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/03_preprocesamiento.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Descargar archivo fuente"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Imprimir en PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Modo de pantalla completa"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Tema" data-bs-title="Tema"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Claro"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Oscuro"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="Sistema"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>3. Preprocesamiento</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contenido </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agrupacion-de-categorias-raras">3.1 Agrupación de categorías raras</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estrategias-de-codificacion">3.2 Estrategias de codificación</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-encoding-fuera-de-pliegue">3.3 Target encoding fuera de pliegue</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transformacion-logaritmica-y-escalado">3.4 Transformación logarítmica y escalado</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cruces-de-variables">3.5 Cruces de variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#equivalencia-entre-scikit-learn-y-pyspark">3.6 Equivalencia entre scikit-learn y PySpark</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#controles-contra-la-fuga-de-informacion">3.7 Controles contra la fuga de información</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="preprocesamiento">
+<h1>3. Preprocesamiento<a class="headerlink" href="#preprocesamiento" title="Link to this heading">#</a></h1>
+<p>En este capítulo definimos las transformaciones que convierten las 24 variables categóricas en la entrada numérica de los modelos. La lógica es la misma en scikit-learn (<code class="docutils literal notranslate"><span class="pre">src/features.py</span></code>) y en PySpark (<code class="docutils literal notranslate"><span class="pre">src/spark_models.py</span></code>), y todas las transformaciones se ajustan solo con la muestra de entrenamiento. La estrategia de codificación de las variables de alta cardinalidad es un factor experimental: la pregunta P2 compara cinco estrategias.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>§</p></th>
+<th class="head"><p>Paso</p></th>
+<th class="head"><p>Ajuste</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>3.1</p></td>
+<td><p>Agrupación de categorías raras en <code class="docutils literal notranslate"><span class="pre">__RARE__</span></code></p></td>
+<td><p>Conteos en entrenamiento</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.2</p></td>
+<td><p>Codificación: hashing <span class="math notranslate nohighlight">\(2^{12}\)</span>, <span class="math notranslate nohighlight">\(2^{14}\)</span>, <span class="math notranslate nohighlight">\(2^{16}\)</span> y frecuencia</p></td>
+<td><p>Vocabulario y conteos de entrenamiento</p></td>
+</tr>
+<tr class="row-even"><td><p>3.3</p></td>
+<td><p>Target encoding fuera de pliegue</p></td>
+<td><p>Validación cruzada dentro de entrenamiento</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.4</p></td>
+<td><p><span class="math notranslate nohighlight">\(\log(1 + n)\)</span> y <code class="docutils literal notranslate"><span class="pre">StandardScaler</span></code> en las estrategias densas</p></td>
+<td><p>Media y desviación de entrenamiento</p></td>
+</tr>
+<tr class="row-even"><td><p>3.5</p></td>
+<td><p>Cruces de variables (ablación)</p></td>
+<td><p>Igual que las variables originales</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.6</p></td>
+<td><p>Equivalencia entre scikit-learn y PySpark</p></td>
+<td><p>Verificación empírica</p></td>
+</tr>
+<tr class="row-even"><td><p>3.7</p></td>
+<td><p>Controles contra la fuga de información</p></td>
+<td><p>Lista de verificación</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">ROOT</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">(),</span> <span class="o">*</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">"src"</span> <span class="o">/</span> <span class="s2">"config.py"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
+<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">ROOT</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ROOT</span><span class="p">))</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Markdown</span><span class="p">,</span> <span class="n">display</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">C</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">plots</span> <span class="k">as</span> <span class="n">P</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span> <span class="k">as</span> <span class="n">R</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.persist</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_json</span>
+
+<span class="n">P</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+<span class="n">C</span><span class="o">.</span><span class="n">ensure_dirs</span><span class="p">()</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.precision"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_colwidth"</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Resultados:"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">RESULTS</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">ROOT</span><span class="p">),</span> <span class="s2">"| prueba de humo:"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">SMOKE</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">polars</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pl</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.sparse</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sp</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">roc_auc_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">data</span> <span class="k">as</span> <span class="n">D</span><span class="p">,</span> <span class="n">features</span> <span class="k">as</span> <span class="n">F</span>
+
+<span class="n">grupos</span> <span class="o">=</span> <span class="n">C</span><span class="o">.</span><span class="n">column_groups</span><span class="p">()</span>
+<span class="n">tr</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">load_train</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SIZES</span><span class="p">[</span><span class="n">C</span><span class="o">.</span><span class="n">MAIN_SIZE</span><span class="p">])</span>
+<span class="n">va</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">load_val</span><span class="p">()</span>
+<span class="n">te</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">load_test</span><span class="p">()</span>
+<span class="n">ytr</span><span class="p">,</span> <span class="n">yva</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">y_of</span><span class="p">(</span><span class="n">tr</span><span class="p">),</span> <span class="n">D</span><span class="o">.</span><span class="n">y_of</span><span class="p">(</span><span class="n">va</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Entrenamiento: </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">num</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">height</span><span class="p">)</span><span class="si">}</span><span class="s2"> filas | validación: </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">num</span><span class="p">(</span><span class="n">va</span><span class="o">.</span><span class="n">height</span><span class="p">)</span><span class="si">}</span><span class="s2"> | prueba: </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">num</span><span class="p">(</span><span class="n">te</span><span class="o">.</span><span class="n">height</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Resultados: results | prueba de humo: False
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Entrenamiento: 1 000 000 filas | validación: 1 000 000 | prueba: 4 218 938
+</pre></div>
+</div>
+</div>
+</div>
+<section id="agrupacion-de-categorias-raras">
+<h2>3.1 Agrupación de categorías raras<a class="headerlink" href="#agrupacion-de-categorias-raras" title="Link to this heading">#</a></h2>
+<p>Una categoría con pocas apariciones aporta un parámetro que el modelo estima con mucho ruido. Reemplazamos por <code class="docutils literal notranslate"><span class="pre">__RARE__</span></code> las categorías con menos de 10 apariciones en la muestra de entrenamiento. El mismo vocabulario se aplica después a validación y prueba, de modo que una categoría nueva, que no existía en entrenamiento, también se convierte en <code class="docutils literal notranslate"><span class="pre">__RARE__</span></code>.</p>
+<p>La tabla muestra, para cada variable, la fracción de filas que pasan a <code class="docutils literal notranslate"><span class="pre">__RARE__</span></code> en cada partición. La diferencia entre entrenamiento y prueba mide cuántas categorías de prueba el modelo no vio.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rg</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">RareGrouper</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">tr</span><span class="p">)</span>
+<span class="n">rare</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"vocabulario"</span><span class="p">:</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">rg</span><span class="o">.</span><span class="n">vocab_</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">},</span>
+                     <span class="s2">"entrenamiento"</span><span class="p">:</span> <span class="n">rg</span><span class="o">.</span><span class="n">rare_share</span><span class="p">(</span><span class="n">tr</span><span class="p">),</span> <span class="s2">"validación"</span><span class="p">:</span> <span class="n">rg</span><span class="o">.</span><span class="n">rare_share</span><span class="p">(</span><span class="n">va</span><span class="p">),</span> <span class="s2">"prueba"</span><span class="p">:</span> <span class="n">rg</span><span class="o">.</span><span class="n">rare_share</span><span class="p">(</span><span class="n">te</span><span class="p">)})</span>
+<span class="n">rare</span> <span class="o">=</span> <span class="n">rare</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"prueba"</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">display</span><span class="p">((</span><span class="n">rare</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">rare</span><span class="p">[</span><span class="n">k</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"entrenamiento"</span><span class="p">,</span> <span class="s2">"validación"</span><span class="p">,</span> <span class="s2">"prueba"</span><span class="p">]}))</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"entrenamiento"</span><span class="p">:</span> <span class="s2">"% __RARE__ entrenamiento"</span><span class="p">,</span> <span class="s2">"validación"</span><span class="p">:</span> <span class="s2">"% __RARE__ validación"</span><span class="p">,</span> <span class="s2">"prueba"</span><span class="p">:</span> <span class="s2">"% __RARE__ prueba"</span><span class="p">})</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mf">3.4</span><span class="p">))</span>
+<span class="n">top</span> <span class="o">=</span> <span class="n">rare</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">top</span><span class="p">));</span> <span class="n">w</span> <span class="o">=</span> <span class="mf">0.27</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">cc</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([(</span><span class="s2">"entrenamiento"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">BAR</span><span class="p">),</span> <span class="p">(</span><span class="s2">"validación"</span><span class="p">,</span> <span class="s2">"#5BC0BE"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"prueba"</span><span class="p">,</span> <span class="s2">"#1C2541"</span><span class="p">)]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="p">(</span><span class="n">k</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">w</span><span class="p">,</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">top</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">w</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">col</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">top</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">"right"</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"</span><span class="si">% d</span><span class="s2">e filas en __RARE__"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Filas agrupadas como raras (umbral </span><span class="si">{</span><span class="n">C</span><span class="o">.</span><span class="n">RARE_MIN_COUNT</span><span class="si">}</span><span class="s2">, muestra </span><span class="si">{</span><span class="n">C</span><span class="o">.</span><span class="n">MAIN_SIZE</span><span class="si">}</span><span class="s2">)"</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"3_1_raras"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>device_ip</th>
+      <th>C14</th>
+      <th>C17</th>
+      <th>C21</th>
+      <th>device_id</th>
+      <th>C19</th>
+      <th>device_model</th>
+      <th>app_id</th>
+      <th>site_id</th>
+      <th>site_domain</th>
+      <th>...</th>
+      <th>banner_pos</th>
+      <th>C1</th>
+      <th>C16</th>
+      <th>C15</th>
+      <th>device_conn_type</th>
+      <th>device_type</th>
+      <th>C18</th>
+      <th>hora</th>
+      <th>dia_semana</th>
+      <th>franja</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>vocabulario</th>
+      <td>9304.00</td>
+      <td>1346.00</td>
+      <td>340.00</td>
+      <td>52.00</td>
+      <td>169.00</td>
+      <td>58.00</td>
+      <td>2643.00</td>
+      <td>919.00</td>
+      <td>1195.00</td>
+      <td>989.00</td>
+      <td>...</td>
+      <td>7.0</td>
+      <td>7.0</td>
+      <td>9.0</td>
+      <td>8.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>4.0</td>
+      <td>24.0</td>
+      <td>7.0</td>
+      <td>4.0</td>
+    </tr>
+    <tr>
+      <th>% __RARE__ entrenamiento</th>
+      <td>73.59</td>
+      <td>0.20</td>
+      <td>0.01</td>
+      <td>0.00</td>
+      <td>17.00</td>
+      <td>0.00</td>
+      <td>0.82</td>
+      <td>0.56</td>
+      <td>0.46</td>
+      <td>0.52</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>% __RARE__ validación</th>
+      <td>78.22</td>
+      <td>23.87</td>
+      <td>23.35</td>
+      <td>1.30</td>
+      <td>20.40</td>
+      <td>1.55</td>
+      <td>1.15</td>
+      <td>0.80</td>
+      <td>0.56</td>
+      <td>0.57</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>% __RARE__ prueba</th>
+      <td>84.05</td>
+      <td>36.47</td>
+      <td>33.62</td>
+      <td>19.25</td>
+      <td>15.03</td>
+      <td>10.44</td>
+      <td>1.20</td>
+      <td>1.16</td>
+      <td>0.64</td>
+      <td>0.54</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>4 rows × 24 columns</p>
+</div></div><img alt="_images/24f3d90f711846f8381bc5e1f4f479e56349d94f4359be20fd6822f24a2e05ce.png" src="_images/24f3d90f711846f8381bc5e1f4f479e56349d94f4359be20fd6822f24a2e05ce.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">v</span> <span class="o">=</span> <span class="n">rare</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"`</span><span class="si">{</span><span class="n">rare</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">` es la variable con más filas agrupadas: </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">pct</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">'entrenamiento'</span><span class="p">])</span><span class="si">}</span><span class="s2"> en entrenamiento y </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">pct</span><span class="p">(</span><span class="n">v</span><span class="p">[</span><span class="s1">'prueba'</span><span class="p">])</span><span class="si">}</span><span class="s2"> en prueba. "</span>
+    <span class="sa">f</span><span class="s2">"En promedio, la fracción de filas raras sube de </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">pct</span><span class="p">(</span><span class="n">rare</span><span class="p">[</span><span class="s1">'entrenamiento'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="si">}</span><span class="s2"> en entrenamiento a </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">pct</span><span class="p">(</span><span class="n">rare</span><span class="p">[</span><span class="s1">'prueba'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="si">}</span><span class="s2"> "</span>
+    <span class="s2">"en prueba, porque la prueba contiene categorías que no aparecen en la muestra de entrenamiento."</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"el vocabulario se recalcula con cada muestra de entrenamiento; con muestras más grandes, más categorías superan el umbral."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"para el modelo, `__RARE__` es una categoría más; su parámetro resume el comportamiento de las categorías poco frecuentes y de las nuevas."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"la proporción de categorías nuevas en prueba crece con la distancia temporal al entrenamiento; es una fuente de pérdida de desempeño que ninguna codificación elimina."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="hallazgos-y-decisiones">Hallazgos y decisiones</h3>
+<p><code class="docutils literal notranslate"><span class="pre">device_ip</span></code> es la variable con más filas agrupadas: 73.6 % en entrenamiento y 84.1 % en prueba. En promedio, la fracción de filas raras sube de 3.9 % en entrenamiento a 8.4 % en prueba, porque la prueba contiene categorías que no aparecen en la muestra de entrenamiento.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> el vocabulario se recalcula con cada muestra de entrenamiento; con muestras más grandes, más categorías superan el umbral.</p></li>
+<li><p><strong>Modelado:</strong> para el modelo, <code class="docutils literal notranslate"><span class="pre">__RARE__</span></code> es una categoría más; su parámetro resume el comportamiento de las categorías poco frecuentes y de las nuevas.</p></li>
+<li><p><strong>Riesgos:</strong> la proporción de categorías nuevas en prueba crece con la distancia temporal al entrenamiento; es una fuente de pérdida de desempeño que ninguna codificación elimina.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="estrategias-de-codificacion">
+<h2>3.2 Estrategias de codificación<a class="headerlink" href="#estrategias-de-codificacion" title="Link to this heading">#</a></h2>
+<p><strong>Hashing.</strong> Cada par «variable=valor» se asigna a la columna <span class="math notranslate nohighlight">\(h(\text{&quot;variable=valor&quot;}) \bmod d\)</span> con valor 1, y las colisiones se suman. La matriz es dispersa: cada fila tiene a lo sumo 24 entradas distintas de cero. El hashing no necesita guardar un vocabulario para codificar y su memoria no depende del número de categorías (Weinberger et al., 2009). Su costo son las colisiones: dos categorías distintas comparten columna y el modelo no puede distinguirlas.</p>
+<p><strong>Frecuencia.</strong> Cada variable de alta cardinalidad se reemplaza por <span class="math notranslate nohighlight">\(\log(1 + n)\)</span>, donde <span class="math notranslate nohighlight">\(n\)</span> es el número de apariciones de su categoría en entrenamiento, estandarizado. Las variables de baja cardinalidad reciben one-hot. La representación es densa y pequeña, pero dos categorías con el mismo conteo quedan iguales.</p>
+<p><strong>Target encoding.</strong> Cada categoría se reemplaza por una estimación suavizada de su CTR (sección 3.3).</p>
+<p>La tabla resume cada estrategia en la muestra principal: dimensión, número medio de entradas no nulas por fila, memoria de la matriz de entrenamiento y tiempo de ajuste del preprocesamiento.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">mats</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">for</span> <span class="n">enc</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">ENCODINGS</span><span class="p">:</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">prep</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">CTRPreprocessor</span><span class="p">(</span><span class="n">enc</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="n">grupos</span><span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">bench</span>
+    <span class="k">with</span> <span class="n">bench</span><span class="o">.</span><span class="n">stage</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="s2">"prep"</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="n">tr</span><span class="o">.</span><span class="n">height</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">prep</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
+    <span class="n">nnz</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">nnz</span> <span class="o">/</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">else</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">count_nonzero</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"codificación"</span><span class="p">:</span> <span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="n">enc</span><span class="p">],</span> <span class="s2">"tipo"</span><span class="p">:</span> <span class="s2">"dispersa"</span> <span class="k">if</span> <span class="n">sp</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"densa"</span><span class="p">,</span>
+                 <span class="s2">"dimensión"</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="s2">"no nulos por fila"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">nnz</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="s2">"memoria (MB)"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">matrix_bytes</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1024</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                 <span class="s2">"ajuste (s)"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">"prep_s"</span><span class="p">],</span> <span class="mi">2</span><span class="p">)})</span>
+    <span class="n">mats</span><span class="p">[</span><span class="n">enc</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">prep</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+<span class="n">enc_tab</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"codificación"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">enc_tab</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>tipo</th>
+      <th>dimensión</th>
+      <th>no nulos por fila</th>
+      <th>memoria (MB)</th>
+      <th>ajuste (s)</th>
+    </tr>
+    <tr>
+      <th>codificación</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Hashing 2^12</th>
+      <td>dispersa</td>
+      <td>4096</td>
+      <td>23.98</td>
+      <td>186.8</td>
+      <td>0.86</td>
+    </tr>
+    <tr>
+      <th>Hashing 2^14</th>
+      <td>dispersa</td>
+      <td>16384</td>
+      <td>23.99</td>
+      <td>186.9</td>
+      <td>1.05</td>
+    </tr>
+    <tr>
+      <th>Hashing 2^16</th>
+      <td>dispersa</td>
+      <td>65536</td>
+      <td>24.00</td>
+      <td>186.9</td>
+      <td>0.89</td>
+    </tr>
+    <tr>
+      <th>Frecuencia</th>
+      <td>densa</td>
+      <td>242</td>
+      <td>24.00</td>
+      <td>923.2</td>
+      <td>5.09</td>
+    </tr>
+    <tr>
+      <th>Target encoding OOF</th>
+      <td>densa</td>
+      <td>242</td>
+      <td>24.00</td>
+      <td>923.2</td>
+      <td>8.53</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p><strong>Colisiones del hashing.</strong> Contamos los pares «variable=valor» distintos que hay en la muestra de entrenamiento después de agrupar las raras, y cuántos de ellos comparten columna con otro par para cada dimensión <span class="math notranslate nohighlight">\(d\)</span>. Si hay <span class="math notranslate nohighlight">\(V\)</span> pares distintos y la función hash reparte de forma uniforme, el número esperado de columnas ocupadas es <span class="math notranslate nohighlight">\(d\,\big(1 - (1 - 1/d)^{V}\big)\)</span>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">src.features</span><span class="w"> </span><span class="kn">import</span> <span class="n">HASH_SEED</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">))</span>
+<span class="n">tokens</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">g</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">concat_str</span><span class="p">([</span><span class="n">pl</span><span class="o">.</span><span class="n">lit</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">="</span><span class="p">),</span> <span class="n">pl</span><span class="o">.</span><span class="n">col</span><span class="p">(</span><span class="n">c</span><span class="p">)])</span><span class="o">.</span><span class="n">alias</span><span class="p">(</span><span class="s2">"t"</span><span class="p">))</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">])[</span><span class="s2">"t"</span><span class="p">]</span>
+<span class="n">V</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">tokens</span><span class="p">)</span>
+<span class="n">col_rows</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">enc</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">HASH_DIMS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="p">(</span><span class="n">tokens</span><span class="o">.</span><span class="n">hash</span><span class="p">(</span><span class="n">seed</span><span class="o">=</span><span class="n">HASH_SEED</span><span class="p">)</span> <span class="o">%</span> <span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">u</span><span class="p">,</span> <span class="n">cnt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">shared</span> <span class="o">=</span> <span class="n">cnt</span><span class="p">[</span><span class="n">cnt</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">mats</span><span class="p">[</span><span class="n">enc</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">col_rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"codificación"</span><span class="p">:</span> <span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="n">enc</span><span class="p">],</span> <span class="s2">"d"</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span> <span class="s2">"pares distintos V"</span><span class="p">:</span> <span class="n">V</span><span class="p">,</span> <span class="s2">"columnas ocupadas"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">u</span><span class="p">),</span>
+                     <span class="s2">"esperadas (uniforme)"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">d</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">/</span> <span class="n">d</span><span class="p">)</span> <span class="o">**</span> <span class="n">V</span><span class="p">)),</span> <span class="s2">"</span><span class="si">% d</span><span class="s2">e pares que comparten columna"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">shared</span> <span class="o">/</span> <span class="n">V</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                     <span class="s2">"</span><span class="si">% d</span><span class="s2">e filas con colisión interna"</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">indptr</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">))),</span> <span class="mi">2</span><span class="p">)})</span>
+<span class="n">col_tab</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">col_rows</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"codificación"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">col_tab</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>d</th>
+      <th>pares distintos V</th>
+      <th>columnas ocupadas</th>
+      <th>esperadas (uniforme)</th>
+      <th>% de pares que comparten columna</th>
+      <th>% de filas con colisión interna</th>
+    </tr>
+    <tr>
+      <th>codificación</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Hashing 2^12</th>
+      <td>4096</td>
+      <td>17371</td>
+      <td>4040</td>
+      <td>4037</td>
+      <td>98.4</td>
+      <td>1.80</td>
+    </tr>
+    <tr>
+      <th>Hashing 2^14</th>
+      <td>16384</td>
+      <td>17371</td>
+      <td>10637</td>
+      <td>10709</td>
+      <td>65.6</td>
+      <td>0.68</td>
+    </tr>
+    <tr>
+      <th>Hashing 2^16</th>
+      <td>65536</td>
+      <td>17371</td>
+      <td>15212</td>
+      <td>15260</td>
+      <td>23.7</td>
+      <td>0.44</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">h12</span><span class="p">,</span> <span class="n">h16</span> <span class="o">=</span> <span class="n">col_tab</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">col_tab</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">mem</span> <span class="o">=</span> <span class="n">enc_tab</span><span class="p">[</span><span class="s2">"memoria (MB)"</span><span class="p">]</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"La muestra de entrenamiento tiene </span><span class="si">{</span><span class="n">R</span><span class="o">.</span><span class="n">num</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="si">}</span><span class="s2"> pares variable=valor distintos. Con $d = 2^</span><span class="se">{{</span><span class="s2">12</span><span class="se">}}</span><span class="s2">$ comparten columna "</span>
+    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">h12</span><span class="p">[</span><span class="s1">'</span><span class="si">% d</span><span class="s1">e pares que comparten columna'</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % de los pares; con $d = 2^</span><span class="se">{{</span><span class="s2">16</span><span class="se">}}</span><span class="s2">$, </span><span class="si">{</span><span class="n">h16</span><span class="p">[</span><span class="s1">'</span><span class="si">% d</span><span class="s1">e pares que comparten columna'</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> %. "</span>
+    <span class="sa">f</span><span class="s2">"Las tres matrices de hashing ocupan casi la misma memoria (</span><span class="si">{</span><span class="n">mem</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="n">mem</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB), porque una matriz dispersa "</span>
+    <span class="sa">f</span><span class="s2">"solo almacena las entradas no nulas; la de frecuencia ocupa </span><span class="si">{</span><span class="n">mem</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="s1">'freq'</span><span class="p">]]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB por ser densa, con "</span>
+    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">enc_tab</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="s1">'freq'</span><span class="p">],</span><span class="w"> </span><span class="s1">'dimensión'</span><span class="p">]</span><span class="si">}</span><span class="s2"> columnas."</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"el hashing es la única estrategia cuya memoria no crece con la cardinalidad; la de frecuencia crece con el número de categorías de baja cardinalidad, por el one-hot."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"en el MLP, la primera capa tiene $d </span><span class="se">\\</span><span class="s2">times h$ pesos: con $d = 2^</span><span class="si">{16}</span><span class="s2">$ y 256 neuronas son 16.8 millones de parámetros, aunque cada fila active solo 24 columnas."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"la memoria de la matriz no es la memoria del entrenamiento: el MLP denso de Spark convierte la entrada dispersa en bloques densos (capítulo 5)."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id1">Hallazgos y decisiones</h3>
+<p>La muestra de entrenamiento tiene 17 371 pares variable=valor distintos. Con <span class="math notranslate nohighlight">\(d = 2^{12}\)</span> comparten columna 98.4 % de los pares; con <span class="math notranslate nohighlight">\(d = 2^{16}\)</span>, 23.7 %. Las tres matrices de hashing ocupan casi la misma memoria (186.8 a 186.9 MB), porque una matriz dispersa solo almacena las entradas no nulas; la de frecuencia ocupa 923.2 MB por ser densa, con 242 columnas.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> el hashing es la única estrategia cuya memoria no crece con la cardinalidad; la de frecuencia crece con el número de categorías de baja cardinalidad, por el one-hot.</p></li>
+<li><p><strong>Modelado:</strong> en el MLP, la primera capa tiene <span class="math notranslate nohighlight">\(d \times h\)</span> pesos: con <span class="math notranslate nohighlight">\(d = 2^{16}\)</span> y 256 neuronas son 16.8 millones de parámetros, aunque cada fila active solo 24 columnas.</p></li>
+<li><p><strong>Riesgos:</strong> la memoria de la matriz no es la memoria del entrenamiento: el MLP denso de Spark convierte la entrada dispersa en bloques densos (capítulo 5).</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="target-encoding-fuera-de-pliegue">
+<h2>3.3 Target encoding fuera de pliegue<a class="headerlink" href="#target-encoding-fuera-de-pliegue" title="Link to this heading">#</a></h2>
+<p>El <em>target encoding</em> reemplaza la categoría <span class="math notranslate nohighlight">\(c\)</span> por una media suavizada del objetivo (Micci-Barreca, 2001):</p>
+<div class="math notranslate nohighlight">
+\[\text{TE}(c) = \frac{n_c\, \bar y_c + m\, \bar y}{n_c + m},\]</div>
+<p>donde <span class="math notranslate nohighlight">\(n_c\)</span> y <span class="math notranslate nohighlight">\(\bar y_c\)</span> son el número de impresiones y el CTR de la categoría, <span class="math notranslate nohighlight">\(\bar y\)</span> es el CTR global y <span class="math notranslate nohighlight">\(m\)</span> controla la contracción hacia la media; <code class="docutils literal notranslate"><span class="pre">TargetEncoder</span></code> de scikit-learn estima <span class="math notranslate nohighlight">\(m\)</span> por variable.</p>
+<p>Si una fila de entrenamiento se codifica con una media que incluye su propia etiqueta, la variable codificada contiene información del objetivo: es fuga de información. La codificación <strong>fuera de pliegue</strong> (<em>out-of-fold</em>) parte el entrenamiento en <span class="math notranslate nohighlight">\(K = 5\)</span> pliegues y codifica cada pliegue con las medias de los otros cuatro. Como las filas están ordenadas en el tiempo, usamos pliegues contiguos sin barajar. Validación y prueba se codifican con las medias de todo el entrenamiento.</p>
+<p>Comparamos ambas versiones con una regresión logística entrenada solo con las variables codificadas. Esta implementación existe solo en scikit-learn: PySpark no trae un <em>target encoding</em> fuera de pliegue, y programarlo con uniones por pliegue cambiaría la lógica que comparamos entre entornos.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">KFold</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TargetEncoder</span>
+<span class="n">hi</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grupos</span><span class="p">[</span><span class="s2">"baja"</span><span class="p">]]</span>
+<span class="n">gtr</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">))</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">hi</span><span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">gva</span> <span class="o">=</span> <span class="n">rg</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">va</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">))</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">hi</span><span class="p">)</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span>
+<span class="n">te_in</span> <span class="o">=</span> <span class="n">TargetEncoder</span><span class="p">(</span><span class="n">target_type</span><span class="o">=</span><span class="s2">"binary"</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">gtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
+<span class="n">Xin_tr</span><span class="p">,</span> <span class="n">Xin_va</span> <span class="o">=</span> <span class="n">te_in</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">gtr</span><span class="p">),</span> <span class="n">te_in</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">gva</span><span class="p">)</span>               <span class="c1"># ingenua: incluye la propia etiqueta</span>
+<span class="n">te_oof</span> <span class="o">=</span> <span class="n">TargetEncoder</span><span class="p">(</span><span class="n">target_type</span><span class="o">=</span><span class="s2">"binary"</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">KFold</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">TARGET_ENCODER_CV</span><span class="p">,</span> <span class="n">shuffle</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="n">Xoof_tr</span> <span class="o">=</span> <span class="n">te_oof</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">gtr</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>                                   <span class="c1"># fuera de pliegue</span>
+<span class="n">Xoof_va</span> <span class="o">=</span> <span class="n">te_oof</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">gva</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="p">[(</span><span class="s2">"ingenua (en la muestra)"</span><span class="p">,</span> <span class="n">Xin_tr</span><span class="p">,</span> <span class="n">Xin_va</span><span class="p">),</span> <span class="p">(</span><span class="s2">"fuera de pliegue"</span><span class="p">,</span> <span class="n">Xoof_tr</span><span class="p">,</span> <span class="n">Xoof_va</span><span class="p">)]:</span>
+    <span class="n">lr</span> <span class="o">=</span> <span class="n">LogisticRegression</span><span class="p">(</span><span class="n">max_iter</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">ytr</span><span class="p">)</span>
+    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"target encoding"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">"AUC entrenamiento"</span><span class="p">:</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">ytr</span><span class="p">,</span> <span class="n">lr</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">a</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">]),</span>
+                <span class="s2">"AUC validación"</span><span class="p">:</span> <span class="n">roc_auc_score</span><span class="p">(</span><span class="n">yva</span><span class="p">,</span> <span class="n">lr</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">b</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">])})</span>
+<span class="n">te_tab</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">res</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"target encoding"</span><span class="p">)</span>
+<span class="n">te_tab</span><span class="p">[</span><span class="s2">"brecha"</span><span class="p">]</span> <span class="o">=</span> <span class="n">te_tab</span><span class="p">[</span><span class="s2">"AUC entrenamiento"</span><span class="p">]</span> <span class="o">-</span> <span class="n">te_tab</span><span class="p">[</span><span class="s2">"AUC validación"</span><span class="p">]</span>
+<span class="n">display</span><span class="p">(</span><span class="n">te_tab</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>AUC entrenamiento</th>
+      <th>AUC validación</th>
+      <th>brecha</th>
+    </tr>
+    <tr>
+      <th>target encoding</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>ingenua (en la muestra)</th>
+      <td>0.7404</td>
+      <td>0.7230</td>
+      <td>0.0174</td>
+    </tr>
+    <tr>
+      <th>fuera de pliegue</th>
+      <td>0.7212</td>
+      <td>0.7263</td>
+      <td>-0.0052</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ing</span><span class="p">,</span> <span class="n">oof</span> <span class="o">=</span> <span class="n">te_tab</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">te_tab</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"Con la codificación ingenua, la regresión logística alcanza un AUC de </span><span class="si">{</span><span class="n">ing</span><span class="p">[</span><span class="s1">'AUC entrenamiento'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> en entrenamiento y "</span>
+    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ing</span><span class="p">[</span><span class="s1">'AUC validación'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> en validación (brecha de </span><span class="si">{</span><span class="n">ing</span><span class="p">[</span><span class="s1">'brecha'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">). Fuera de pliegue, la brecha es </span><span class="si">{</span><span class="n">oof</span><span class="p">[</span><span class="s1">'brecha'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">. "</span>
+    <span class="o">+</span> <span class="p">(</span><span class="s2">"La diferencia entre las dos brechas es la fuga de información: la versión ingenua aprende de su propia etiqueta y su desempeño en entrenamiento no se sostiene fuera de él."</span>
+       <span class="k">if</span> <span class="n">ing</span><span class="p">[</span><span class="s2">"brecha"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">oof</span><span class="p">[</span><span class="s2">"brecha"</span><span class="p">]</span> <span class="k">else</span>
+       <span class="s2">"En esta muestra las dos brechas son similares, porque la contracción del codificador limita la fuga en las categorías pequeñas; mantenemos la versión fuera de pliegue como protocolo."</span><span class="p">),</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"usamos solo la versión fuera de pliegue, con pliegues contiguos en el tiempo."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"la parada temprana y la búsqueda de hiperparámetros ven la codificación fuera de pliegue, la misma que se aplica a validación y prueba."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"el target encoding es la única estrategia que usa la etiqueta para construir la entrada; por eso es también la más expuesta a la deriva del CTR entre días."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id2">Hallazgos y decisiones</h3>
+<p>Con la codificación ingenua, la regresión logística alcanza un AUC de 0.7404 en entrenamiento y 0.7230 en validación (brecha de 0.0174). Fuera de pliegue, la brecha es -0.0052. La diferencia entre las dos brechas es la fuga de información: la versión ingenua aprende de su propia etiqueta y su desempeño en entrenamiento no se sostiene fuera de él.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> usamos solo la versión fuera de pliegue, con pliegues contiguos en el tiempo.</p></li>
+<li><p><strong>Modelado:</strong> la parada temprana y la búsqueda de hiperparámetros ven la codificación fuera de pliegue, la misma que se aplica a validación y prueba.</p></li>
+<li><p><strong>Riesgos:</strong> el target encoding es la única estrategia que usa la etiqueta para construir la entrada; por eso es también la más expuesta a la deriva del CTR entre días.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="transformacion-logaritmica-y-escalado">
+<h2>3.4 Transformación logarítmica y escalado<a class="headerlink" href="#transformacion-logaritmica-y-escalado" title="Link to this heading">#</a></h2>
+<p>En las estrategias densas, la parte numérica de la entrada (frecuencias o medias del objetivo) se estandariza con la media <span class="math notranslate nohighlight">\(\mu_j\)</span> y la desviación <span class="math notranslate nohighlight">\(\sigma_j\)</span> de entrenamiento:</p>
+<div class="math notranslate nohighlight">
+\[z_j = \frac{v_j - \mu_j}{\sigma_j}, \qquad v_j = \log(1 + n_j) \text{ (frecuencia) o } v_j = \text{TE}_j \text{ (target encoding)}.\]</div>
+<p>Las columnas one-hot no se escalan. En PySpark, <code class="docutils literal notranslate"><span class="pre">StandardScaler(withMean=True,</span> <span class="pre">withStd=True)</span></code> actúa solo sobre el vector numérico, y después <code class="docutils literal notranslate"><span class="pre">VectorAssembler</span></code> lo une con los vectores one-hot. Las variables de hashing no se escalan en ninguno de los dos entornos: todas valen 0, 1 o un entero pequeño cuando hay colisión.</p>
+</section>
+<section id="cruces-de-variables">
+<h2>3.5 Cruces de variables<a class="headerlink" href="#cruces-de-variables" title="Link to this heading">#</a></h2>
+<p>Un cruce crea una variable nueva con la concatenación de dos variables, por ejemplo <code class="docutils literal notranslate"><span class="pre">site_id|device_type</span></code>. Permite que un modelo lineal capture una interacción que de otra forma no puede representar. Evaluamos dos cruces, <code class="docutils literal notranslate"><span class="pre">site_id</span> <span class="pre">×</span> <span class="pre">device_type</span></code> y <code class="docutils literal notranslate"><span class="pre">app_id</span> <span class="pre">×</span> <span class="pre">device_type</span></code>, como ablación del MLP con hashing (capítulo 9): si el MLP ya aprende esas interacciones en su capa oculta, los cruces no deberían mejorar su desempeño.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">xt</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">add_crosses</span><span class="p">(</span><span class="n">tr</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">))</span>
+<span class="n">rgx</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">RareGrouper</span><span class="p">(</span><span class="n">F</span><span class="o">.</span><span class="n">cross_names</span><span class="p">())</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">xt</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"categorías distintas"</span><span class="p">:</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">xt</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">n_unique</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">cross_names</span><span class="p">()},</span>
+                      <span class="s2">"vocabulario (≥ umbral)"</span><span class="p">:</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">rgx</span><span class="o">.</span><span class="n">vocab_</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">F</span><span class="o">.</span><span class="n">cross_names</span><span class="p">()},</span>
+                      <span class="s2">"</span><span class="si">% f</span><span class="s2">ilas a __RARE__"</span><span class="p">:</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="n">v</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rgx</span><span class="o">.</span><span class="n">rare_share</span><span class="p">(</span><span class="n">xt</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()}}))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>categorías distintas</th>
+      <th>vocabulario (≥ umbral)</th>
+      <th>% filas a __RARE__</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>site_id_x_device_type</th>
+      <td>2641</td>
+      <td>1198</td>
+      <td>0.46</td>
+    </tr>
+    <tr>
+      <th>app_id_x_device_type</th>
+      <td>3331</td>
+      <td>944</td>
+      <td>0.60</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="equivalencia-entre-scikit-learn-y-pyspark">
+<h2>3.6 Equivalencia entre scikit-learn y PySpark<a class="headerlink" href="#equivalencia-entre-scikit-learn-y-pyspark" title="Link to this heading">#</a></h2>
+<p>La guía del proyecto pide la misma lógica de preprocesamiento en ambos entornos. La tabla muestra la correspondencia entre componentes.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Paso</p></th>
+<th class="head"><p>scikit-learn (<code class="docutils literal notranslate"><span class="pre">src/features.py</span></code>)</p></th>
+<th class="head"><p>PySpark (<code class="docutils literal notranslate"><span class="pre">src/spark_models.py</span></code>)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Lectura</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">polars.scan_parquet</span></code> con filtro por día y por <span class="math notranslate nohighlight">\(u\)</span></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">spark.read.parquet</span></code> con el mismo filtro</p></td>
+</tr>
+<tr class="row-odd"><td><p>Categorías raras</p></td>
+<td><p>Conteo con <code class="docutils literal notranslate"><span class="pre">group_by</span></code> y reemplazo con <code class="docutils literal notranslate"><span class="pre">is_in</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">groupBy().count()</span></code> y unión con difusión (<em>broadcast join</em>)</p></td>
+</tr>
+<tr class="row-even"><td><p>Hashing</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">hash(&quot;variable=valor&quot;)</span> <span class="pre">mod</span> <span class="pre">d</span></code> en Polars, matriz CSR</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FeatureHasher</span></code> (MurmurHash3 de «variable=valor»)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Frecuencia</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">log1p(n)</span></code> y estandarización</p></td>
+<td><p>Unión con la tabla de conteos, <code class="docutils literal notranslate"><span class="pre">log1p</span></code>, <code class="docutils literal notranslate"><span class="pre">StandardScaler</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Baja cardinalidad</p></td>
+<td><p>One-hot</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">StringIndexer</span></code> + <code class="docutils literal notranslate"><span class="pre">OneHotEncoder</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Ensamblado</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">numpy.hstack</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">VectorAssembler</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Target encoding</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">TargetEncoder</span></code> fuera de pliegue</p></td>
+<td><p>No disponible (sección 3.3)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Las dos funciones hash son distintas (la de Polars y MurmurHash3), por lo que las colisiones ocurren entre pares diferentes, pero su número esperado es el mismo para una dimensión dada. Verificamos que ambos entornos construyen el mismo vocabulario de categorías frecuentes sobre la misma muestra.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">spark_models</span> <span class="k">as</span> <span class="n">SP</span>
+<span class="n">n_chk</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SPARK_TUNE_ROWS</span><span class="p">,</span> <span class="n">D</span><span class="o">.</span><span class="n">window_rows</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">TRAIN_DAYS</span><span class="p">))</span>
+<span class="n">spark</span> <span class="o">=</span> <span class="n">SP</span><span class="o">.</span><span class="n">get_spark</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SPARK_CORES_MAIN</span><span class="p">)</span>
+<span class="n">s_tr</span> <span class="o">=</span> <span class="n">SP</span><span class="o">.</span><span class="n">read_window</span><span class="p">(</span><span class="n">spark</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">TRAIN_DAYS</span><span class="p">,</span> <span class="n">n_chk</span><span class="p">)</span><span class="o">.</span><span class="n">cache</span><span class="p">()</span>
+<span class="n">sprep</span> <span class="o">=</span> <span class="n">SP</span><span class="o">.</span><span class="n">SparkPrep</span><span class="p">(</span><span class="s2">"hash"</span><span class="p">,</span> <span class="n">dim</span><span class="o">=</span><span class="n">C</span><span class="o">.</span><span class="n">SPARK_HASH_DIM</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">s_tr</span><span class="p">)</span>
+<span class="n">p_tr</span> <span class="o">=</span> <span class="n">D</span><span class="o">.</span><span class="n">load_train</span><span class="p">(</span><span class="n">n_chk</span><span class="p">)</span>
+<span class="n">p_rg</span> <span class="o">=</span> <span class="n">F</span><span class="o">.</span><span class="n">RareGrouper</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">p_tr</span><span class="p">)</span>
+<span class="n">chk</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"filas (Polars)"</span><span class="p">:</span> <span class="n">p_tr</span><span class="o">.</span><span class="n">height</span><span class="p">,</span> <span class="s2">"filas (Spark)"</span><span class="p">:</span> <span class="n">s_tr</span><span class="o">.</span><span class="n">count</span><span class="p">(),</span>
+                    <span class="s2">"vocabulario Polars"</span><span class="p">:</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">p_rg</span><span class="o">.</span><span class="n">vocab_</span><span class="p">[</span><span class="n">c</span><span class="p">])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">},</span>
+                    <span class="s2">"vocabulario Spark"</span><span class="p">:</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="n">sprep</span><span class="o">.</span><span class="n">keep_</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">count</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">C</span><span class="o">.</span><span class="n">CAT_COLS</span><span class="p">}})</span>
+<span class="n">chk</span><span class="p">[</span><span class="s2">"iguales"</span><span class="p">]</span> <span class="o">=</span> <span class="n">chk</span><span class="p">[</span><span class="s2">"vocabulario Polars"</span><span class="p">]</span> <span class="o">==</span> <span class="n">chk</span><span class="p">[</span><span class="s2">"vocabulario Spark"</span><span class="p">]</span>
+<span class="n">Xs</span> <span class="o">=</span> <span class="n">sprep</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">s_tr</span><span class="p">)</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"features"</span><span class="p">)</span><span class="o">.</span><span class="n">first</span><span class="p">()[</span><span class="s2">"features"</span><span class="p">]</span>
+<span class="n">display</span><span class="p">(</span><span class="n">chk</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Dimensión de FeatureHasher: </span><span class="si">{</span><span class="n">Xs</span><span class="o">.</span><span class="n">size</span><span class="si">}</span><span class="s2"> | entradas no nulas de la primera fila: </span><span class="si">{</span><span class="n">Xs</span><span class="o">.</span><span class="n">numNonzeros</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="n">s_tr</span><span class="o">.</span><span class="n">unpersist</span><span class="p">();</span> <span class="n">SP</span><span class="o">.</span><span class="n">stop_spark</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>C1</th>
+      <th>banner_pos</th>
+      <th>site_id</th>
+      <th>site_domain</th>
+      <th>site_category</th>
+      <th>app_id</th>
+      <th>app_domain</th>
+      <th>app_category</th>
+      <th>device_id</th>
+      <th>device_ip</th>
+      <th>...</th>
+      <th>C15</th>
+      <th>C16</th>
+      <th>C17</th>
+      <th>C18</th>
+      <th>C19</th>
+      <th>C20</th>
+      <th>C21</th>
+      <th>hora</th>
+      <th>dia_semana</th>
+      <th>franja</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>filas (Polars)</th>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>...</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+    </tr>
+    <tr>
+      <th>filas (Spark)</th>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>...</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+      <td>20000</td>
+    </tr>
+    <tr>
+      <th>vocabulario Polars</th>
+      <td>6</td>
+      <td>4</td>
+      <td>126</td>
+      <td>105</td>
+      <td>11</td>
+      <td>87</td>
+      <td>21</td>
+      <td>10</td>
+      <td>2</td>
+      <td>39</td>
+      <td>...</td>
+      <td>4</td>
+      <td>5</td>
+      <td>177</td>
+      <td>4</td>
+      <td>45</td>
+      <td>73</td>
+      <td>41</td>
+      <td>24</td>
+      <td>7</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>vocabulario Spark</th>
+      <td>6</td>
+      <td>4</td>
+      <td>126</td>
+      <td>105</td>
+      <td>11</td>
+      <td>87</td>
+      <td>21</td>
+      <td>10</td>
+      <td>2</td>
+      <td>39</td>
+      <td>...</td>
+      <td>4</td>
+      <td>5</td>
+      <td>177</td>
+      <td>4</td>
+      <td>45</td>
+      <td>73</td>
+      <td>41</td>
+      <td>24</td>
+      <td>7</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>iguales</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>...</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 24 columns</p>
+</div></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dimensión de FeatureHasher: 4096 | entradas no nulas de la primera fila: 24
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ok</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">chk</span><span class="p">[</span><span class="s2">"iguales"</span><span class="p">]</span><span class="o">.</span><span class="n">all</span><span class="p">())</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="p">(</span><span class="s2">"Los dos entornos leen las mismas filas y construyen el mismo vocabulario de categorías frecuentes en las 24 variables."</span>
+     <span class="k">if</span> <span class="n">ok</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"El vocabulario difiere en </span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">chk</span><span class="p">[</span><span class="s1">'iguales'</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2"> variables; revisamos el filtro por $u$ antes de continuar."</span><span class="p">),</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"la clave $u$ garantiza que ambos entornos entrenen con las mismas filas; el umbral de raras se cuenta igual."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"las diferencias de desempeño entre entornos provienen del modelo y del optimizador, no de los datos de entrada."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"la función hash distinta hace que las colisiones no coincidan fila por fila; el efecto esperado es pequeño y se refleja en la variación entre entornos."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id3">Hallazgos y decisiones</h3>
+<p>Los dos entornos leen las mismas filas y construyen el mismo vocabulario de categorías frecuentes en las 24 variables.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> la clave <span class="math notranslate nohighlight">\(u\)</span> garantiza que ambos entornos entrenen con las mismas filas; el umbral de raras se cuenta igual.</p></li>
+<li><p><strong>Modelado:</strong> las diferencias de desempeño entre entornos provienen del modelo y del optimizador, no de los datos de entrada.</p></li>
+<li><p><strong>Riesgos:</strong> la función hash distinta hace que las colisiones no coincidan fila por fila; el efecto esperado es pequeño y se refleja en la variación entre entornos.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="controles-contra-la-fuga-de-informacion">
+<h2>3.7 Controles contra la fuga de información<a class="headerlink" href="#controles-contra-la-fuga-de-informacion" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Riesgo</p></th>
+<th class="head"><p>Control</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Ver el futuro al entrenar</p></td>
+<td><p>Partición temporal: entrenamiento días 21–28, validación 29, prueba 30</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ajustar transformaciones con datos de evaluación</p></td>
+<td><p>Vocabulario de raras, conteos, codificadores y escaladores se ajustan con la muestra de entrenamiento y solo se aplican a validación y prueba</p></td>
+</tr>
+<tr class="row-even"><td><p>Usar la etiqueta propia en la entrada</p></td>
+<td><p>Target encoding fuera de pliegue, con pliegues contiguos</p></td>
+</tr>
+<tr class="row-odd"><td><p>Elegir decisiones con la prueba</p></td>
+<td><p>Hiperparámetros, umbral de decisión y mejor codificación se eligen en el día 29</p></td>
+</tr>
+<tr class="row-even"><td><p>Cambios en el conjunto de prueba</p></td>
+<td><p>Huella SHA-256 del Parquet del día 30 en el manifiesto; el código la verifica antes de cargarlo</p></td>
+</tr>
+<tr class="row-odd"><td><p>Filas distintas entre entornos</p></td>
+<td><p>Clave de muestreo <span class="math notranslate nohighlight">\(u\)</span> común y orden (hora, <span class="math notranslate nohighlight">\(u\)</span>) idéntico en ambos entornos</p></td>
+</tr>
+<tr class="row-even"><td><p>Consultar la etiqueta de prueba en el EDA</p></td>
+<td><p>El EDA usa del día 30 solo las variables de entrada (PSI)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="02_eda.html"
+       title="página anterior">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">anterior</p>
+        <p class="prev-next-title">2. Análisis exploratorio de datos</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="04_modelado_sklearn.html"
+       title="siguiente página">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">siguiente</p>
+        <p class="prev-next-title">4. Modelado con scikit-learn</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contenido
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#agrupacion-de-categorias-raras">3.1 Agrupación de categorías raras</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estrategias-de-codificacion">3.2 Estrategias de codificación</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#target-encoding-fuera-de-pliegue">3.3 Target encoding fuera de pliegue</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transformacion-logaritmica-y-escalado">3.4 Transformación logarítmica y escalado</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cruces-de-variables">3.5 Cruces de variables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#equivalencia-entre-scikit-learn-y-pyspark">3.6 Equivalencia entre scikit-learn y PySpark</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#controles-contra-la-fuga-de-informacion">3.7 Controles contra la fuga de información</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+Por Anyely Sanjuan Benavides y Juan David Díaz Fernández
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

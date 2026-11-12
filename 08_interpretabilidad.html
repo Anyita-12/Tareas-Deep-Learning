@@ -1,0 +1,1496 @@
+
+<!DOCTYPE html>
+
+
+<html lang="es" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>8. Interpretabilidad local con LIME &#8212; Predicción de clics en anuncios móviles con MLP</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/mystnb.11b39860a7a0cbfd473a3ad8a317855267ff0bd372690045ca344a6b62be495e.css?v=8cd3d715" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="_static/autores.css?v=fc0dcfce" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="_static/documentation_options.js?v=78d55cf8"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>let toggleHintShow = 'Haz clic para mostrar';</script>
+    <script>let toggleHintHide = 'Haz clic para ocultar';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
+    <script src="_static/translations.js?v=d190bf04"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '08_interpretabilidad';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Índice" href="genindex.html" />
+    <link rel="search" title="Búsqueda" href="search.html" />
+    <link rel="next" title="9. Comparación de resultados" href="09_comparacion.html" />
+    <link rel="prev" title="7. Benchmarking computacional" href="07_benchmarking.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="es"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Saltar al contenido principal</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Volver arriba</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Advertencia de versión"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Navegación del sitio">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="En esta página">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="intro.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">Predicción de clics en anuncios móviles con MLP</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><div class="sidebar-autores">
+  <div class="autor">
+    <img src="_static/autores/anyely.jpg" alt="Anyely Sanjuan Benavides">
+    <p class="autor-nombre">Anyely Sanjuan Benavides</p>
+    <p class="autor-detalle">Msc. Analítica de Datos<br>Universidad del Norte</p>
+  </div>
+  <div class="autor">
+    <img src="_static/autores/juan.jpg" alt="Juan David Díaz Fernández">
+    <p class="autor-nombre">Juan David Díaz Fernández</p>
+    <p class="autor-detalle">Msc. Ingeniería Mecánica<br>Universidad del Norte</p>
+  </div>
+</div></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Búsqueda</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="intro.html">
+                    Predicción de clics en anuncios móviles con MLP
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_problema_dataset.html">1. Definición del problema y ficha de datos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_eda.html">2. Análisis exploratorio de datos</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_preprocesamiento.html">3. Preprocesamiento</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_modelado_sklearn.html">4. Modelado con scikit-learn</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_modelado_pyspark.html">5. Modelado con PySpark</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_evaluacion_estadistica.html">6. Evaluación estadística</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_benchmarking.html">7. Benchmarking computacional</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">8. Interpretabilidad local con LIME</a></li>
+<li class="toctree-l1"><a class="reference internal" href="09_comparacion.html">9. Comparación de resultados</a></li>
+<li class="toctree-l1"><a class="reference internal" href="10_reflexion_critica.html">10. Reflexión crítica</a></li>
+<li class="toctree-l1"><a class="reference internal" href="11_anexo_reproducibilidad.html">Anexo A. Reproducibilidad</a></li>
+<li class="toctree-l1"><a class="reference internal" href="12_referencias.html">Referencias</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/Anyita-12/Tareas-Deep-Learning" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Repositorio de origen"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Descarga esta pagina">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/08_interpretabilidad.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Descargar archivo fuente"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Imprimir en PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Modo de pantalla completa"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Tema" data-bs-title="Tema"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Claro"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Oscuro"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="Sistema"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Búsqueda" aria-label="Búsqueda" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>8. Interpretabilidad local con LIME</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contenido </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#espacio-interpretable">8.1 Espacio interpretable</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#casos-explicados">8.2 Casos explicados</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#explicaciones-locales">8.3 Explicaciones locales</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fidelidad-y-sensibilidad-a-la-configuracion">8.4 Fidelidad y sensibilidad a la configuración</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estabilidad">8.5 Estabilidad</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contraste-con-shap-y-con-la-importancia-por-permutacion">8.6 Contraste con SHAP y con la importancia por permutación</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="interpretabilidad-local-con-lime">
+<h1>8. Interpretabilidad local con LIME<a class="headerlink" href="#interpretabilidad-local-con-lime" title="Link to this heading">#</a></h1>
+<p>En este capítulo explicamos predicciones individuales del MLP con LIME (Ribeiro et al., 2016), medimos la fidelidad y la estabilidad de esas explicaciones y las contrastamos con SHAP (Lundberg y Lee, 2017) y con la importancia por permutación. Aquí respondemos la pregunta P4. Los cálculos se ejecutan con <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">src.runner</span> <span class="pre">explain</span></code>.</p>
+<p><strong>Cómo funciona LIME.</strong> Para explicar la predicción <span class="math notranslate nohighlight">\(f(x)\)</span>, LIME genera perturbaciones <span class="math notranslate nohighlight">\(z\)</span> alrededor de <span class="math notranslate nohighlight">\(x\)</span>, obtiene sus predicciones <span class="math notranslate nohighlight">\(f(z)\)</span> y ajusta un modelo lineal ponderado <span class="math notranslate nohighlight">\(g(z) = w_0 + w^\top z'\)</span>, donde <span class="math notranslate nohighlight">\(z'\)</span> indica qué variables de <span class="math notranslate nohighlight">\(z\)</span> conservan el valor de <span class="math notranslate nohighlight">\(x\)</span>. Los pesos de la regresión se calculan con un núcleo exponencial,</p>
+<div class="math notranslate nohighlight">
+\[\pi_x(z) = \exp\!\left(-\frac{D(x, z)^2}{\sigma^2}\right),\]</div>
+<p>que da más peso a las perturbaciones cercanas a <span class="math notranslate nohighlight">\(x\)</span>; <span class="math notranslate nohighlight">\(\sigma\)</span> es el ancho del núcleo. El coeficiente <span class="math notranslate nohighlight">\(w_j\)</span> estima cuánto cambia la probabilidad de clic cuando la variable <span class="math notranslate nohighlight">\(j\)</span> toma el valor que tiene en <span class="math notranslate nohighlight">\(x\)</span> frente a valores muestreados de la distribución de entrenamiento.</p>
+<p><strong>Fidelidad.</strong> El <span class="math notranslate nohighlight">\(R^2\)</span> ponderado del modelo lineal <span class="math notranslate nohighlight">\(g\)</span> sobre las perturbaciones mide qué tan bien la explicación reproduce al modelo en el vecindario de <span class="math notranslate nohighlight">\(x\)</span>.</p>
+<p><strong>Estabilidad.</strong> Repetimos LIME con 10 semillas y comparamos los conjuntos de las 5 variables con mayor <span class="math notranslate nohighlight">\(|w_j|\)</span> mediante la similitud de Jaccard, <span class="math notranslate nohighlight">\(J(A, B) = |A \cap B| / |A \cup B|\)</span>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">ROOT</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">(),</span> <span class="o">*</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">]</span> <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">"src"</span> <span class="o">/</span> <span class="s2">"config.py"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">())</span>
+<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">ROOT</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">ROOT</span><span class="p">))</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Markdown</span><span class="p">,</span> <span class="n">display</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">config</span> <span class="k">as</span> <span class="n">C</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">plots</span> <span class="k">as</span> <span class="n">P</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">report</span> <span class="k">as</span> <span class="n">R</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src.persist</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_json</span>
+
+<span class="n">P</span><span class="o">.</span><span class="n">setup</span><span class="p">()</span>
+<span class="n">C</span><span class="o">.</span><span class="n">ensure_dirs</span><span class="p">()</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.precision"</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_colwidth"</span><span class="p">,</span> <span class="mi">90</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Resultados:"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">RESULTS</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">ROOT</span><span class="p">),</span> <span class="s2">"| prueba de humo:"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">SMOKE</span><span class="p">)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">combinations</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">spearmanr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">src</span><span class="w"> </span><span class="kn">import</span> <span class="n">explain</span> <span class="k">as</span> <span class="n">X</span>
+
+<span class="n">ex</span> <span class="o">=</span> <span class="n">load_json</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SUMMARY</span> <span class="o">/</span> <span class="s2">"explain.json"</span><span class="p">)</span>
+<span class="n">lime</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_json</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SUMMARY</span> <span class="o">/</span> <span class="s2">"lime_runs.json"</span><span class="p">)</span>
+<span class="n">casos</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SUMMARY</span> <span class="o">/</span> <span class="s2">"lime_casos.csv"</span><span class="p">)</span>
+<span class="n">perm</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">SUMMARY</span> <span class="o">/</span> <span class="s2">"permutation_importance.csv"</span><span class="p">)</span>
+<span class="n">cols</span> <span class="o">=</span> <span class="n">ex</span><span class="p">[</span><span class="s2">"cols"</span><span class="p">]</span>
+<span class="n">shap_v</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ex</span><span class="p">[</span><span class="s2">"shap"</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Modelo explicado: MLP con </span><span class="si">{</span><span class="n">C</span><span class="o">.</span><span class="n">ENCODING_LABELS</span><span class="p">[</span><span class="n">ex</span><span class="p">[</span><span class="s1">'encoding'</span><span class="p">]]</span><span class="si">}</span><span class="s2">, semilla </span><span class="si">{</span><span class="n">ex</span><span class="p">[</span><span class="s1">'seed'</span><span class="p">]</span><span class="si">}</span><span class="s2"> | umbral </span><span class="si">{</span><span class="n">ex</span><span class="p">[</span><span class="s1">'threshold'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> | "</span>
+      <span class="sa">f</span><span class="s2">"casos: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">casos</span><span class="p">)</span><span class="si">}</span><span class="s2"> | explicaciones LIME: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">lime</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Resultados: results | prueba de humo: False
+Modelo explicado: MLP con Hashing 2^14, semilla 3 | umbral 0.211 | casos: 20 | explicaciones LIME: 1200
+</pre></div>
+</div>
+</div>
+</div>
+<section id="espacio-interpretable">
+<h2>8.1 Espacio interpretable<a class="headerlink" href="#espacio-interpretable" title="Link to this heading">#</a></h2>
+<p>Con hashing, las columnas de la entrada del MLP no tienen nombre: la columna 1873 de <span class="math notranslate nohighlight">\(2^{14}\)</span> mezcla pares «variable=valor» que colisionan. Por eso LIME no se aplica sobre la entrada del modelo, sino sobre un espacio reducido e interpretable:</p>
+<ul class="simple">
+<li><p>cada una de las 24 variables originales es una variable categórica del explicador;</p></li>
+<li><p>cada variable conserva sus 30 categorías más frecuentes en entrenamiento, y el resto se agrupa en <code class="docutils literal notranslate"><span class="pre">__RARE__</span></code>;</p></li>
+<li><p>la función de predicción decodifica cada fila perturbada a texto, aplica el mismo preprocesamiento del modelo (raras y codificación) y devuelve la probabilidad del MLP.</p></li>
+</ul>
+<p>La correspondencia hacia las variables originales es directa: cada peso de LIME se refiere a una variable original y a un valor concreto. El costo de esta reducción es que el modelo se evalúa sobre entradas simplificadas; medimos cuánto cambia su desempeño al pasar por el espacio interpretable.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fe</span> <span class="o">=</span> <span class="n">ex</span><span class="p">[</span><span class="s2">"fidelidad_espacio"</span><span class="p">]</span>
+<span class="n">display</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">({</span><span class="s2">"AUC con la entrada original"</span><span class="p">:</span> <span class="n">fe</span><span class="p">[</span><span class="s2">"auc_original"</span><span class="p">],</span> <span class="s2">"AUC en el espacio interpretable"</span><span class="p">:</span> <span class="n">fe</span><span class="p">[</span><span class="s2">"auc_espacio_interpretable"</span><span class="p">],</span>
+                   <span class="s2">"correlación de probabilidades"</span><span class="p">:</span> <span class="n">fe</span><span class="p">[</span><span class="s2">"corr_pearson_prob"</span><span class="p">]},</span> <span class="n">name</span><span class="o">=</span><span class="s2">"validación (muestra)"</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"Al pasar por el espacio interpretable, el AUC del MLP en validación cambia de </span><span class="si">{</span><span class="n">fe</span><span class="p">[</span><span class="s1">'auc_original'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="n">fe</span><span class="p">[</span><span class="s1">'auc_espacio_interpretable'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> "</span>
+    <span class="sa">f</span><span class="s2">"y la correlación entre las probabilidades es </span><span class="si">{</span><span class="n">fe</span><span class="p">[</span><span class="s1">'corr_pearson_prob'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Preprocesamiento"</span><span class="p">:</span> <span class="s2">"el espacio interpretable conserva las categorías más frecuentes; los identificadores de alta cardinalidad quedan mayoritariamente en `__RARE__`."</span><span class="p">,</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"las explicaciones describen al modelo evaluado en ese espacio; cuanto más alta la correlación, más se parecen al modelo original."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"la contribución de los identificadores raros (por ejemplo, `device_ip`) se subrepresenta, porque sus valores concretos no existen en el espacio interpretable."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>validación (muestra)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>AUC con la entrada original</th>
+      <td>0.7463</td>
+    </tr>
+    <tr>
+      <th>AUC en el espacio interpretable</th>
+      <td>0.7104</td>
+    </tr>
+    <tr>
+      <th>correlación de probabilidades</th>
+      <td>0.8128</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><h3 class="rubric" id="hallazgos-y-decisiones">Hallazgos y decisiones</h3>
+<p>Al pasar por el espacio interpretable, el AUC del MLP en validación cambia de 0.7463 a 0.7104 y la correlación entre las probabilidades es 0.813.</p>
+<ul class="simple">
+<li><p><strong>Preprocesamiento:</strong> el espacio interpretable conserva las categorías más frecuentes; los identificadores de alta cardinalidad quedan mayoritariamente en <code class="docutils literal notranslate"><span class="pre">__RARE__</span></code>.</p></li>
+<li><p><strong>Modelado:</strong> las explicaciones describen al modelo evaluado en ese espacio; cuanto más alta la correlación, más se parecen al modelo original.</p></li>
+<li><p><strong>Riesgos:</strong> la contribución de los identificadores raros (por ejemplo, <code class="docutils literal notranslate"><span class="pre">device_ip</span></code>) se subrepresenta, porque sus valores concretos no existen en el espacio interpretable.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="casos-explicados">
+<h2>8.2 Casos explicados<a class="headerlink" href="#casos-explicados" title="Link to this heading">#</a></h2>
+<p>Elegimos los casos de forma sistemática en el día de prueba, con el umbral de validación: los 10 falsos positivos con mayor probabilidad predicha y los 10 falsos negativos con menor probabilidad predicha, es decir, los errores cometidos con mayor confianza.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">show_cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"tipo"</span><span class="p">,</span> <span class="s2">"p"</span><span class="p">,</span> <span class="s2">"x_site_category"</span><span class="p">,</span> <span class="s2">"x_app_category"</span><span class="p">,</span> <span class="s2">"x_device_type"</span><span class="p">,</span> <span class="s2">"x_banner_pos"</span><span class="p">,</span> <span class="s2">"x_hora"</span><span class="p">,</span> <span class="s2">"x_C1"</span><span class="p">]</span>
+<span class="n">display</span><span class="p">(</span><span class="n">casos</span><span class="p">[[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">show_cols</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">casos</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">"x_"</span><span class="p">,</span> <span class="s2">""</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>tipo</th>
+      <th>p</th>
+      <th>site_category</th>
+      <th>app_category</th>
+      <th>device_type</th>
+      <th>banner_pos</th>
+      <th>hora</th>
+      <th>C1</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>FP</td>
+      <td>0.9302</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>1</td>
+      <td>0</td>
+      <td>12</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>FP</td>
+      <td>0.9194</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>1</td>
+      <td>0</td>
+      <td>9</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>FP</td>
+      <td>0.9127</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>1</td>
+      <td>0</td>
+      <td>17</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>FP</td>
+      <td>0.9051</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>1</td>
+      <td>0</td>
+      <td>20</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>FP</td>
+      <td>0.8967</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>1</td>
+      <td>0</td>
+      <td>6</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>FP</td>
+      <td>0.8898</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>4</td>
+      <td>7</td>
+      <td>21</td>
+      <td>1010</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>FP</td>
+      <td>0.8852</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>4</td>
+      <td>7</td>
+      <td>17</td>
+      <td>1010</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>FP</td>
+      <td>0.8828</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>4</td>
+      <td>7</td>
+      <td>21</td>
+      <td>1010</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>FP</td>
+      <td>0.8821</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>1</td>
+      <td>0</td>
+      <td>18</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>FP</td>
+      <td>0.8769</td>
+      <td>50e219e0</td>
+      <td>0f2161f8</td>
+      <td>1</td>
+      <td>0</td>
+      <td>15</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>FN</td>
+      <td>0.0009</td>
+      <td>50e219e0</td>
+      <td>cef3e649</td>
+      <td>1</td>
+      <td>0</td>
+      <td>11</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>FN</td>
+      <td>0.0011</td>
+      <td>f028772b</td>
+      <td>07d7df22</td>
+      <td>1</td>
+      <td>0</td>
+      <td>4</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>FN</td>
+      <td>0.0011</td>
+      <td>75fa27f6</td>
+      <td>07d7df22</td>
+      <td>1</td>
+      <td>0</td>
+      <td>15</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>FN</td>
+      <td>0.0011</td>
+      <td>75fa27f6</td>
+      <td>07d7df22</td>
+      <td>1</td>
+      <td>0</td>
+      <td>15</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>FN</td>
+      <td>0.0011</td>
+      <td>75fa27f6</td>
+      <td>07d7df22</td>
+      <td>1</td>
+      <td>0</td>
+      <td>15</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>FN</td>
+      <td>0.0012</td>
+      <td>f028772b</td>
+      <td>07d7df22</td>
+      <td>1</td>
+      <td>0</td>
+      <td>8</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>FN</td>
+      <td>0.0012</td>
+      <td>f66779e6</td>
+      <td>07d7df22</td>
+      <td>1</td>
+      <td>1</td>
+      <td>7</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>FN</td>
+      <td>0.0016</td>
+      <td>75fa27f6</td>
+      <td>07d7df22</td>
+      <td>1</td>
+      <td>0</td>
+      <td>1</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>FN</td>
+      <td>0.0017</td>
+      <td>28905ebd</td>
+      <td>07d7df22</td>
+      <td>1</td>
+      <td>0</td>
+      <td>9</td>
+      <td>1005</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>FN</td>
+      <td>0.0018</td>
+      <td>50e219e0</td>
+      <td>cef3e649</td>
+      <td>1</td>
+      <td>0</td>
+      <td>17</td>
+      <td>1005</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="explicaciones-locales">
+<h2>8.3 Explicaciones locales<a class="headerlink" href="#explicaciones-locales" title="Link to this heading">#</a></h2>
+<p>Mostramos la explicación del falso positivo y del falso negativo más confiados, con la configuración por defecto de LIME (ancho del núcleo <span class="math notranslate nohighlight">\(0.75\sqrt{p}\)</span>, con <span class="math notranslate nohighlight">\(p = 24\)</span> variables) y 5000 perturbaciones. Cada barra es el peso <span class="math notranslate nohighlight">\(w_j\)</span> del valor que la variable toma en el caso.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">NS</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">LIME_NUM_SAMPLES</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">pesos</span><span class="p">(</span><span class="n">caso</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">ns</span><span class="o">=</span><span class="n">NS</span><span class="p">,</span> <span class="n">semilla</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">lime</span><span class="p">[(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"caso"</span><span class="p">]</span> <span class="o">==</span> <span class="n">caso</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"kernel"</span><span class="p">]</span> <span class="o">==</span> <span class="n">kernel</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"num_samples"</span><span class="p">]</span> <span class="o">==</span> <span class="n">ns</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"semilla"</span><span class="p">]</span> <span class="o">==</span> <span class="n">semilla</span><span class="p">)]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">"pesos"</span><span class="p">]),</span> <span class="n">r</span><span class="p">[</span><span class="s2">"r2"</span><span class="p">],</span> <span class="n">r</span><span class="p">[</span><span class="s2">"pred_local"</span><span class="p">]</span>
+
+<span class="n">idx_fp</span> <span class="o">=</span> <span class="n">casos</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">casos</span><span class="p">[</span><span class="s2">"tipo"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"FP"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">idx_fn</span> <span class="o">=</span> <span class="n">casos</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">casos</span><span class="p">[</span><span class="s2">"tipo"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"FN"</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="mf">3.8</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[</span><span class="n">idx_fp</span><span class="p">,</span> <span class="n">idx_fn</span><span class="p">]):</span>
+    <span class="n">w</span><span class="p">,</span> <span class="n">r2</span><span class="p">,</span> <span class="n">pl_</span> <span class="o">=</span> <span class="n">pesos</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">w</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">)[:</span><span class="mi">8</span><span class="p">][::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">casos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="s1">'x_'</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">v</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">w</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">labels</span><span class="p">,</span> <span class="n">w</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">[</span><span class="n">C</span><span class="o">.</span><span class="n">ACCENT</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">C</span><span class="o">.</span><span class="n">BAR</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">w</span><span class="o">.</span><span class="n">values</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="s2">"gray"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">casos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="s1">'tipo'</span><span class="p">]</span><span class="si">}</span><span class="s2"> · p = </span><span class="si">{</span><span class="n">casos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="s1">'p'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> · y = </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">casos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="s1">'y'</span><span class="p">])</span><span class="si">}</span><span class="s2"> · R² = </span><span class="si">{</span><span class="n">r2</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">"peso LIME (efecto sobre la probabilidad de clic)"</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"8_3_lime_casos"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/a29b56a4b2754716145dcc2caa689be396dfa0fdc272c19dea0adfecf74a99ef.png" src="_images/a29b56a4b2754716145dcc2caa689be396dfa0fdc272c19dea0adfecf74a99ef.png" />
+</div>
+</div>
+</section>
+<section id="fidelidad-y-sensibilidad-a-la-configuracion">
+<h2>8.4 Fidelidad y sensibilidad a la configuración<a class="headerlink" href="#fidelidad-y-sensibilidad-a-la-configuracion" title="Link to this heading">#</a></h2>
+<p>Calculamos el <span class="math notranslate nohighlight">\(R^2\)</span> del modelo sustituto para los 20 casos, las 10 semillas y cada combinación de ancho del núcleo (<span class="math notranslate nohighlight">\(0.5\)</span>, <span class="math notranslate nohighlight">\(0.75\)</span> y <span class="math notranslate nohighlight">\(1.5\)</span> veces <span class="math notranslate nohighlight">\(\sqrt{p}\)</span>) y número de perturbaciones (1000 y 5000).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">fid</span> <span class="o">=</span> <span class="n">lime</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"kernel"</span><span class="p">,</span> <span class="s2">"num_samples"</span><span class="p">])[</span><span class="s2">"r2"</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"median"</span><span class="p">,</span> <span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"std"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">])</span>
+<span class="n">display</span><span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">3.2</span><span class="p">))</span>
+<span class="n">grupos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">fid</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">boxplot</span><span class="p">([</span><span class="n">lime</span><span class="p">[(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"kernel"</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"num_samples"</span><span class="p">]</span> <span class="o">==</span> <span class="n">n</span><span class="p">)][</span><span class="s2">"r2"</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">grupos</span><span class="p">],</span> <span class="n">showfliers</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">grupos</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"σ=</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">√p</span><span class="se">\n</span><span class="s2">n=</span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">grupos</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">c</span><span class="o">=</span><span class="n">C</span><span class="o">.</span><span class="n">ACCENT</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">"--"</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"criterio de fidelidad (0.5)"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">"R² del sustituto local"</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Fidelidad de LIME según la configuración"</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"8_4_fidelidad"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>median</th>
+      <th>mean</th>
+      <th>std</th>
+      <th>min</th>
+      <th>max</th>
+    </tr>
+    <tr>
+      <th>kernel</th>
+      <th>num_samples</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">0.50</th>
+      <th>1000</th>
+      <td>0.195</td>
+      <td>0.194</td>
+      <td>0.026</td>
+      <td>0.117</td>
+      <td>0.285</td>
+    </tr>
+    <tr>
+      <th>5000</th>
+      <td>0.175</td>
+      <td>0.167</td>
+      <td>0.029</td>
+      <td>0.091</td>
+      <td>0.227</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">0.75</th>
+      <th>1000</th>
+      <td>0.188</td>
+      <td>0.185</td>
+      <td>0.031</td>
+      <td>0.113</td>
+      <td>0.284</td>
+    </tr>
+    <tr>
+      <th>5000</th>
+      <td>0.172</td>
+      <td>0.165</td>
+      <td>0.031</td>
+      <td>0.081</td>
+      <td>0.226</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">1.50</th>
+      <th>1000</th>
+      <td>0.185</td>
+      <td>0.182</td>
+      <td>0.034</td>
+      <td>0.101</td>
+      <td>0.284</td>
+    </tr>
+    <tr>
+      <th>5000</th>
+      <td>0.171</td>
+      <td>0.163</td>
+      <td>0.032</td>
+      <td>0.078</td>
+      <td>0.226</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><img alt="_images/d2ca256bcd15a73424cbb61caeea2ccd665efa065f51cd35f95951cdcac29788.png" src="_images/d2ca256bcd15a73424cbb61caeea2ccd665efa065f51cd35f95951cdcac29788.png" />
+</div>
+</div>
+</section>
+<section id="estabilidad">
+<h2>8.5 Estabilidad<a class="headerlink" href="#estabilidad" title="Link to this heading">#</a></h2>
+<p>Para cada caso y configuración calculamos la similitud de Jaccard media entre los conjuntos de las 5 variables principales de las 10 repeticiones (45 pares).</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">top5</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">[:</span><span class="n">C</span><span class="o">.</span><span class="n">LIME_TOP_FEATURES</span><span class="p">])</span>
+
+<span class="n">est</span> <span class="o">=</span> <span class="p">(</span><span class="n">lime</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="n">lime</span><span class="p">[</span><span class="s2">"pesos"</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">top5</span><span class="p">))</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"caso"</span><span class="p">,</span> <span class="s2">"tipo"</span><span class="p">,</span> <span class="s2">"kernel"</span><span class="p">,</span> <span class="s2">"num_samples"</span><span class="p">])[</span><span class="s2">"top"</span><span class="p">]</span>
+       <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">X</span><span class="o">.</span><span class="n">mean_pairwise_jaccard</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">s</span><span class="p">)))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"jaccard"</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">())</span>
+<span class="n">tab_est</span> <span class="o">=</span> <span class="n">est</span><span class="o">.</span><span class="n">pivot_table</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="s2">"kernel"</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="s2">"num_samples"</span><span class="p">,</span> <span class="n">values</span><span class="o">=</span><span class="s2">"jaccard"</span><span class="p">,</span> <span class="n">aggfunc</span><span class="o">=</span><span class="s2">"mean"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">tab_est</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+<span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">tab_est</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">"Blues"</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">tab_est</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"n=</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">tab_est</span><span class="o">.</span><span class="n">columns</span><span class="p">]);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">tab_est</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"σ=</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">√p"</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">tab_est</span><span class="o">.</span><span class="n">index</span><span class="p">])</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tab_est</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+    <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">tab_est</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">j</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tab_est</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="w"> </span><span class="n">j</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"white"</span> <span class="k">if</span> <span class="n">tab_est</span><span class="o">.</span><span class="n">iat</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.6</span> <span class="k">else</span> <span class="s2">"#0B132B"</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">"Jaccard medio del top 5 entre semillas"</span><span class="p">);</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"8_5_estabilidad"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>num_samples</th>
+      <th>1000</th>
+      <th>5000</th>
+    </tr>
+    <tr>
+      <th>kernel</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0.50</th>
+      <td>0.515</td>
+      <td>0.728</td>
+    </tr>
+    <tr>
+      <th>0.75</th>
+      <td>0.504</td>
+      <td>0.737</td>
+    </tr>
+    <tr>
+      <th>1.50</th>
+      <td>0.501</td>
+      <td>0.730</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><img alt="_images/e5e9af9218238a68fa99bd49d40ff979434d7fd79f3d223703a35010aee1272b.png" src="_images/e5e9af9218238a68fa99bd49d40ff979434d7fd79f3d223703a35010aee1272b.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">d_</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">NS</span><span class="p">)</span>
+<span class="n">r2_def</span> <span class="o">=</span> <span class="n">lime</span><span class="p">[(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"kernel"</span><span class="p">]</span> <span class="o">==</span> <span class="n">d_</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"num_samples"</span><span class="p">]</span> <span class="o">==</span> <span class="n">d_</span><span class="p">[</span><span class="mi">1</span><span class="p">])][</span><span class="s2">"r2"</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+<span class="n">j_def</span> <span class="o">=</span> <span class="n">tab_est</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">d_</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">d_</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span>
+<span class="n">mejor</span> <span class="o">=</span> <span class="n">tab_est</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"Con la configuración por defecto y </span><span class="si">{</span><span class="n">NS</span><span class="si">}</span><span class="s2"> perturbaciones, el $R^2$ mediano es </span><span class="si">{</span><span class="n">r2_def</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> y el Jaccard medio del top 5 es </span><span class="si">{</span><span class="n">j_def</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">. "</span>
+    <span class="sa">f</span><span class="s2">"La configuración más estable es σ = </span><span class="si">{</span><span class="n">mejor</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">√p con </span><span class="si">{</span><span class="n">mejor</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2"> perturbaciones (Jaccard </span><span class="si">{</span><span class="n">tab_est</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mejor</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">). "</span>
+    <span class="sa">f</span><span class="s2">"Aumentar las perturbaciones de </span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">LIME_NUM_SAMPLES</span><span class="p">)</span><span class="si">}</span><span class="s2"> a </span><span class="si">{</span><span class="nb">max</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">LIME_NUM_SAMPLES</span><span class="p">)</span><span class="si">}</span><span class="s2"> cambia el Jaccard medio en "</span>
+    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="p">(</span><span class="n">tab_est</span><span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">LIME_NUM_SAMPLES</span><span class="p">)]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">tab_est</span><span class="p">[</span><span class="nb">min</span><span class="p">(</span><span class="n">C</span><span class="o">.</span><span class="n">LIME_NUM_SAMPLES</span><span class="p">)])</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">."</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Criterio de P4"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"las explicaciones cumplen ambos criterios declarados (Jaccard ≥ 0.8 y R² ≥ 0.5)."</span> <span class="k">if</span> <span class="p">(</span><span class="n">j_def</span> <span class="o">&gt;=</span> <span class="mf">0.8</span> <span class="ow">and</span> <span class="n">r2_def</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">)</span> <span class="k">else</span>
+                        <span class="s2">"las explicaciones no cumplen los dos criterios declarados con la configuración por defecto: "</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="s2">"son estables pero "</span> <span class="k">if</span> <span class="n">j_def</span> <span class="o">&gt;=</span> <span class="mf">0.8</span> <span class="k">else</span> <span class="s2">"no son estables (Jaccard &lt; 0.8) y "</span><span class="p">)</span>
+                        <span class="o">+</span> <span class="p">(</span><span class="s2">"fieles."</span> <span class="k">if</span> <span class="n">r2_def</span> <span class="o">&gt;=</span> <span class="mf">0.5</span> <span class="k">else</span> <span class="s2">"el sustituto lineal explica menos de la mitad de la variación local (R² &lt; 0.5)."</span><span class="p">)),</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"la inestabilidad proviene del muestreo aleatorio de las perturbaciones: con pocas perturbaciones, variables con pesos parecidos intercambian su lugar en el top 5."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"una explicación inestable puede cambiar de una ejecución a otra con la misma entrada; reportar una sola ejecución de LIME sin fijar la semilla no es reproducible."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id1">Hallazgos y decisiones</h3>
+<p>Con la configuración por defecto y 5000 perturbaciones, el <span class="math notranslate nohighlight">\(R^2\)</span> mediano es 0.172 y el Jaccard medio del top 5 es 0.737. La configuración más estable es σ = 0.75√p con 5000 perturbaciones (Jaccard 0.737). Aumentar las perturbaciones de 1000 a 5000 cambia el Jaccard medio en +0.225.</p>
+<ul class="simple">
+<li><p><strong>Criterio de P4:</strong> las explicaciones no cumplen los dos criterios declarados con la configuración por defecto: no son estables (Jaccard &lt; 0.8) y el sustituto lineal explica menos de la mitad de la variación local (R² &lt; 0.5).</p></li>
+<li><p><strong>Modelado:</strong> la inestabilidad proviene del muestreo aleatorio de las perturbaciones: con pocas perturbaciones, variables con pesos parecidos intercambian su lugar en el top 5.</p></li>
+<li><p><strong>Riesgos:</strong> una explicación inestable puede cambiar de una ejecución a otra con la misma entrada; reportar una sola ejecución de LIME sin fijar la semilla no es reproducible.</p></li>
+</ul>
+</div>
+</div>
+</section>
+<section id="contraste-con-shap-y-con-la-importancia-por-permutacion">
+<h2>8.6 Contraste con SHAP y con la importancia por permutación<a class="headerlink" href="#contraste-con-shap-y-con-la-importancia-por-permutacion" title="Link to this heading">#</a></h2>
+<p><strong>SHAP</strong> asigna a cada variable su valor de Shapley: la contribución media de la variable a la predicción, promediada sobre todos los órdenes en que pueden agregarse las variables (Lundberg y Lee, 2017). Usamos el explicador por permutaciones de la librería <code class="docutils literal notranslate"><span class="pre">shap</span></code> en el mismo espacio interpretable, con 100 filas de entrenamiento como fondo. A diferencia de LIME, los valores de Shapley cumplen la propiedad de eficiencia: suman la diferencia entre la predicción del caso y la predicción media del fondo.</p>
+<p><strong>Importancia por permutación.</strong> Es una medida global: la caída del ROC AUC en validación cuando se permutan al azar los valores de una variable, promediada en 5 repeticiones.</p>
+<p>Comparamos los métodos en dos niveles: por caso, con la correlación de Spearman entre <span class="math notranslate nohighlight">\(|w_j|\)</span> de LIME (media de las 10 semillas, configuración por defecto) y <span class="math notranslate nohighlight">\(|\phi_j|\)</span> de SHAP; y de forma global, con el orden de las variables según cada método.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">lime_def</span> <span class="o">=</span> <span class="n">lime</span><span class="p">[(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"kernel"</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.75</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lime</span><span class="p">[</span><span class="s2">"num_samples"</span><span class="p">]</span> <span class="o">==</span> <span class="n">NS</span><span class="p">)]</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">lime_def</span><span class="p">[</span><span class="n">lime_def</span><span class="p">[</span><span class="s2">"caso"</span><span class="p">]</span> <span class="o">==</span> <span class="n">i</span><span class="p">][</span><span class="s2">"pesos"</span><span class="p">]])</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">casos</span><span class="p">))])</span>
+<span class="n">S</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">shap_v</span><span class="p">)</span>
+<span class="n">por_caso</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"caso"</span><span class="p">:</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">casos</span><span class="p">)),</span> <span class="s2">"tipo"</span><span class="p">:</span> <span class="n">casos</span><span class="p">[</span><span class="s2">"tipo"</span><span class="p">],</span>
+                         <span class="s2">"Spearman |LIME| vs |SHAP|"</span><span class="p">:</span> <span class="p">[</span><span class="n">spearmanr</span><span class="p">(</span><span class="n">W</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="o">.</span><span class="n">statistic</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">casos</span><span class="p">))],</span>
+                         <span class="s2">"Jaccard top 5 LIME vs SHAP"</span><span class="p">:</span> <span class="p">[</span><span class="n">X</span><span class="o">.</span><span class="n">jaccard</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">W</span><span class="p">[</span><span class="n">i</span><span class="p">])[:</span><span class="mi">5</span><span class="p">]),</span> <span class="nb">set</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="o">-</span><span class="n">S</span><span class="p">[</span><span class="n">i</span><span class="p">])[:</span><span class="mi">5</span><span class="p">]))</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">casos</span><span class="p">))]})</span>
+<span class="n">display</span><span class="p">(</span><span class="n">por_caso</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"tipo"</span><span class="p">)[[</span><span class="s2">"Spearman |LIME| vs |SHAP|"</span><span class="p">,</span> <span class="s2">"Jaccard top 5 LIME vs SHAP"</span><span class="p">]]</span><span class="o">.</span><span class="n">agg</span><span class="p">([</span><span class="s2">"mean"</span><span class="p">,</span> <span class="s2">"min"</span><span class="p">,</span> <span class="s2">"max"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+<span class="n">glob</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"LIME (media |w|)"</span><span class="p">:</span> <span class="n">W</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="s2">"SHAP (media |φ|)"</span><span class="p">:</span> <span class="n">S</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)},</span> <span class="n">index</span><span class="o">=</span><span class="n">cols</span><span class="p">)</span>
+<span class="n">glob</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">perm</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"variable"</span><span class="p">)[</span><span class="s2">"caida_auc"</span><span class="p">]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"permutación (caída de AUC)"</span><span class="p">))</span>
+<span class="n">rk</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">rank</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">add_prefix</span><span class="p">(</span><span class="s2">"rango "</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">glob</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">rk</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"rango SHAP (media |φ|)"</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">12</span><span class="p">))</span>
+<span class="n">corr</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="s2">"spearman"</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">corr</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">orden</span> <span class="o">=</span> <span class="n">glob</span><span class="p">[</span><span class="s2">"SHAP (media |φ|)"</span><span class="p">]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span><span class="o">.</span><span class="n">index</span>
+<span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">cc</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="p">[(</span><span class="s2">"LIME (media |w|)"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">ACCENT</span><span class="p">),</span> <span class="p">(</span><span class="s2">"SHAP (media |φ|)"</span><span class="p">,</span> <span class="n">C</span><span class="o">.</span><span class="n">BAR</span><span class="p">),</span> <span class="p">(</span><span class="s2">"permutación (caída de AUC)"</span><span class="p">,</span> <span class="s2">"#5BC0BE"</span><span class="p">)]):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">orden</span><span class="p">,</span> <span class="n">glob</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">orden</span><span class="p">,</span> <span class="n">col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">cc</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">col</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">);</span> <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s2">"y"</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">"Importancia de las variables según cada método (20 casos de error; permutación en validación)"</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">();</span> <span class="n">P</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="s2">"8_6_lime_shap_permutacion"</span><span class="p">);</span> <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+
+    .dataframe thead tr:last-of-type th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th colspan="3" halign="left">Spearman |LIME| vs |SHAP|</th>
+      <th colspan="3" halign="left">Jaccard top 5 LIME vs SHAP</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th>mean</th>
+      <th>min</th>
+      <th>max</th>
+      <th>mean</th>
+      <th>min</th>
+      <th>max</th>
+    </tr>
+    <tr>
+      <th>tipo</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>FN</th>
+      <td>0.456</td>
+      <td>0.368</td>
+      <td>0.575</td>
+      <td>0.304</td>
+      <td>0.25</td>
+      <td>0.429</td>
+    </tr>
+    <tr>
+      <th>FP</th>
+      <td>0.398</td>
+      <td>0.100</td>
+      <td>0.586</td>
+      <td>0.393</td>
+      <td>0.25</td>
+      <td>0.429</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>LIME (media |w|)</th>
+      <th>SHAP (media |φ|)</th>
+      <th>permutación (caída de AUC)</th>
+      <th>rango LIME (media |w|)</th>
+      <th>rango SHAP (media |φ|)</th>
+      <th>rango permutación (caída de AUC)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>banner_pos</th>
+      <td>0.0404</td>
+      <td>0.0262</td>
+      <td>0.0042</td>
+      <td>1</td>
+      <td>1</td>
+      <td>11</td>
+    </tr>
+    <tr>
+      <th>C21</th>
+      <td>0.0218</td>
+      <td>0.0245</td>
+      <td>0.0099</td>
+      <td>5</td>
+      <td>2</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>site_id</th>
+      <td>0.0183</td>
+      <td>0.0212</td>
+      <td>0.0119</td>
+      <td>6</td>
+      <td>3</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>app_category</th>
+      <td>0.0241</td>
+      <td>0.0149</td>
+      <td>0.0190</td>
+      <td>3</td>
+      <td>4</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>site_domain</th>
+      <td>0.0106</td>
+      <td>0.0146</td>
+      <td>0.0110</td>
+      <td>13</td>
+      <td>5</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>C16</th>
+      <td>0.0172</td>
+      <td>0.0130</td>
+      <td>0.0016</td>
+      <td>7</td>
+      <td>6</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>C17</th>
+      <td>0.0234</td>
+      <td>0.0127</td>
+      <td>0.0020</td>
+      <td>4</td>
+      <td>7</td>
+      <td>17</td>
+    </tr>
+    <tr>
+      <th>C19</th>
+      <td>0.0121</td>
+      <td>0.0117</td>
+      <td>0.0051</td>
+      <td>11</td>
+      <td>8</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>C18</th>
+      <td>0.0098</td>
+      <td>0.0079</td>
+      <td>0.0037</td>
+      <td>14</td>
+      <td>9</td>
+      <td>14</td>
+    </tr>
+    <tr>
+      <th>device_conn_type</th>
+      <td>0.0133</td>
+      <td>0.0077</td>
+      <td>0.0011</td>
+      <td>10</td>
+      <td>10</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <th>C14</th>
+      <td>0.0043</td>
+      <td>0.0063</td>
+      <td>0.0022</td>
+      <td>23</td>
+      <td>11</td>
+      <td>16</td>
+    </tr>
+    <tr>
+      <th>device_model</th>
+      <td>0.0081</td>
+      <td>0.0061</td>
+      <td>0.0100</td>
+      <td>17</td>
+      <td>12</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>LIME (media |w|)</th>
+      <th>SHAP (media |φ|)</th>
+      <th>permutación (caída de AUC)</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>LIME (media |w|)</th>
+      <td>1.000</td>
+      <td>0.564</td>
+      <td>0.443</td>
+    </tr>
+    <tr>
+      <th>SHAP (media |φ|)</th>
+      <td>0.564</td>
+      <td>1.000</td>
+      <td>0.570</td>
+    </tr>
+    <tr>
+      <th>permutación (caída de AUC)</th>
+      <td>0.443</td>
+      <td>0.570</td>
+      <td>1.000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><img alt="_images/896391e28e8f2baa88db1907561e6889fb27600623891e8d3424316b50b4aac0.png" src="_images/896391e28e8f2baa88db1907561e6889fb27600623891e8d3424316b50b4aac0.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rho_ls</span> <span class="o">=</span> <span class="n">corr</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"LIME (media |w|)"</span><span class="p">,</span> <span class="s2">"SHAP (media |φ|)"</span><span class="p">]</span>
+<span class="n">rho_sp</span> <span class="o">=</span> <span class="n">corr</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"SHAP (media |φ|)"</span><span class="p">,</span> <span class="s2">"permutación (caída de AUC)"</span><span class="p">]</span>
+<span class="n">top_lime</span> <span class="o">=</span> <span class="n">glob</span><span class="p">[</span><span class="s2">"LIME (media |w|)"</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">();</span> <span class="n">top_shap</span> <span class="o">=</span> <span class="n">glob</span><span class="p">[</span><span class="s2">"SHAP (media |φ|)"</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">();</span> <span class="n">top_perm</span> <span class="o">=</span> <span class="n">glob</span><span class="p">[</span><span class="s2">"permutación (caída de AUC)"</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
+<span class="n">R</span><span class="o">.</span><span class="n">findings</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"Por caso, la correlación de Spearman media entre LIME y SHAP es </span><span class="si">{</span><span class="n">por_caso</span><span class="p">[</span><span class="s1">'Spearman |LIME| vs |SHAP|'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> y el Jaccard medio de "</span>
+    <span class="sa">f</span><span class="s2">"sus top 5 es </span><span class="si">{</span><span class="n">por_caso</span><span class="p">[</span><span class="s1">'Jaccard top 5 LIME vs SHAP'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">. En el agregado, el orden de LIME y el de SHAP tienen ρ = </span><span class="si">{</span><span class="n">rho_ls</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, "</span>
+    <span class="sa">f</span><span class="s2">"y SHAP y la permutación ρ = </span><span class="si">{</span><span class="n">rho_sp</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">. La variable más importante es `</span><span class="si">{</span><span class="n">top_lime</span><span class="si">}</span><span class="s2">` para LIME, `</span><span class="si">{</span><span class="n">top_shap</span><span class="si">}</span><span class="s2">` para SHAP y `</span><span class="si">{</span><span class="n">top_perm</span><span class="si">}</span><span class="s2">` "</span>
+    <span class="s2">"para la permutación."</span><span class="p">,</span>
+    <span class="p">{</span><span class="s2">"Coherencia"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"los métodos coinciden en las variables principales."</span> <span class="k">if</span> <span class="nb">len</span><span class="p">({</span><span class="n">top_lime</span><span class="p">,</span> <span class="n">top_shap</span><span class="p">,</span> <span class="n">top_perm</span><span class="p">})</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span>
+                    <span class="s2">"los métodos no coinciden en la variable principal; la explicación depende del método elegido."</span><span class="p">),</span>
+     <span class="s2">"Modelado"</span><span class="p">:</span> <span class="s2">"LIME y SHAP explican casos individuales; la permutación mide el efecto global sobre el AUC. Una variable puede pesar mucho en los errores confiados y poco en el desempeño global."</span><span class="p">,</span>
+     <span class="s2">"Riesgos"</span><span class="p">:</span> <span class="s2">"SHAP con fondo independiente rompe las dependencias entre variables (por ejemplo, entre `site_id` y `site_domain`) y evalúa al modelo en combinaciones poco realistas; LIME tiene el mismo problema al muestrear cada variable por separado."</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<h3 class="rubric" id="id2">Hallazgos y decisiones</h3>
+<p>Por caso, la correlación de Spearman media entre LIME y SHAP es 0.43 y el Jaccard medio de sus top 5 es 0.35. En el agregado, el orden de LIME y el de SHAP tienen ρ = 0.56, y SHAP y la permutación ρ = 0.57. La variable más importante es <code class="docutils literal notranslate"><span class="pre">banner_pos</span></code> para LIME, <code class="docutils literal notranslate"><span class="pre">banner_pos</span></code> para SHAP y <code class="docutils literal notranslate"><span class="pre">app_category</span></code> para la permutación.</p>
+<ul class="simple">
+<li><p><strong>Coherencia:</strong> los métodos no coinciden en la variable principal; la explicación depende del método elegido.</p></li>
+<li><p><strong>Modelado:</strong> LIME y SHAP explican casos individuales; la permutación mide el efecto global sobre el AUC. Una variable puede pesar mucho en los errores confiados y poco en el desempeño global.</p></li>
+<li><p><strong>Riesgos:</strong> SHAP con fondo independiente rompe las dependencias entre variables (por ejemplo, entre <code class="docutils literal notranslate"><span class="pre">site_id</span></code> y <code class="docutils literal notranslate"><span class="pre">site_domain</span></code>) y evalúa al modelo en combinaciones poco realistas; LIME tiene el mismo problema al muestrear cada variable por separado.</p></li>
+</ul>
+</div>
+</div>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "python"
+        },
+        kernelOptions: {
+            name: "python3",
+            path: "./."
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'python3'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="07_benchmarking.html"
+       title="página anterior">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">anterior</p>
+        <p class="prev-next-title">7. Benchmarking computacional</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="09_comparacion.html"
+       title="siguiente página">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">siguiente</p>
+        <p class="prev-next-title">9. Comparación de resultados</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contenido
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#espacio-interpretable">8.1 Espacio interpretable</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#casos-explicados">8.2 Casos explicados</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#explicaciones-locales">8.3 Explicaciones locales</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#fidelidad-y-sensibilidad-a-la-configuracion">8.4 Fidelidad y sensibilidad a la configuración</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#estabilidad">8.5 Estabilidad</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#contraste-con-shap-y-con-la-importancia-por-permutacion">8.6 Contraste con SHAP y con la importancia por permutación</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+Por Anyely Sanjuan Benavides y Juan David Díaz Fernández
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2026.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
