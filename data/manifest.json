@@ -1,0 +1,72 @@
+{
+  "raw": {
+    "archivo": "train.gz",
+    "bytes": 1117527809
+  },
+  "filas_por_dia": {
+    "21": 4122995,
+    "22": 5337126,
+    "23": 3870752,
+    "24": 3335302,
+    "25": 3363122,
+    "26": 3835892,
+    "27": 3225010,
+    "28": 5287222,
+    "29": 3832608,
+    "30": 4218938
+  },
+  "archivos_parquet": [
+    {
+      "archivo": "parquet/avazu/day=21/data_0.parquet",
+      "bytes": 97712287,
+      "sha256": "9aa0d27efdc2d833eab475dbde697449f63ddbc626e1f9956ea53136963aaa39"
+    },
+    {
+      "archivo": "parquet/avazu/day=22/data_0.parquet",
+      "bytes": 123025577,
+      "sha256": "436936d6140876b0d57de5823575c2e0c6b922b1b6f39184a6d66157d5db44cb"
+    },
+    {
+      "archivo": "parquet/avazu/day=23/data_0.parquet",
+      "bytes": 91347599,
+      "sha256": "e9a4c08702023c2460d4664fb3bb50d327110f4d87b17aeb9e98c30ec5516785"
+    },
+    {
+      "archivo": "parquet/avazu/day=24/data_0.parquet",
+      "bytes": 75384529,
+      "sha256": "137894e506ef9fea62164041674467b82ec5f5f91fccc035f8045d6a0dcb9a0b"
+    },
+    {
+      "archivo": "parquet/avazu/day=25/data_0.parquet",
+      "bytes": 77691952,
+      "sha256": "8d4a8191066ada69748aab8852d10e0bcf92b07a04ac666dca84238a2da348e0"
+    },
+    {
+      "archivo": "parquet/avazu/day=26/data_0.parquet",
+      "bytes": 88499959,
+      "sha256": "06de86b379c3562586215b5cdb56ad2dd16e4d0cd64c183a3600bb550cbb1254"
+    },
+    {
+      "archivo": "parquet/avazu/day=27/data_0.parquet",
+      "bytes": 76694311,
+      "sha256": "4353e45265ba5e8aad6d8fedafc6cdf2bc25fb886c073ad46711da093b516e1d"
+    },
+    {
+      "archivo": "parquet/avazu/day=28/data_0.parquet",
+      "bytes": 124503252,
+      "sha256": "47a5d9133e10369edbcab91cbaa8569b3e237ebf28b698e965a8a5838010c9e3"
+    },
+    {
+      "archivo": "parquet/avazu/day=29/data_0.parquet",
+      "bytes": 89928096,
+      "sha256": "6e813727d953d6da051a17897a718459dde3dbdfd9612754652842a146cb0336"
+    },
+    {
+      "archivo": "parquet/avazu/day=30/data_0.parquet",
+      "bytes": 96878619,
+      "sha256": "4c0da4d3824a03824301e776827b55aab5a15e2abeb975fae193e327765fd14b"
+    }
+  ],
+  "test_day": 30,
+  "test_sha256": "eb597132a26a3e124529497be401f9ccce223613c644a7a11c707b7889f74a9c"
+}

@@ -1,0 +1,15 @@
+format: jb-book
+root: intro
+chapters:
+  - file: 01_problema_dataset
+  - file: 02_eda
+  - file: 03_preprocesamiento
+  - file: 04_modelado_sklearn
+  - file: 05_modelado_pyspark
+  - file: 06_evaluacion_estadistica
+  - file: 07_benchmarking
+  - file: 08_interpretabilidad
+  - file: 09_comparacion
+  - file: 10_reflexion_critica
+  - file: 11_anexo_reproducibilidad
+  - file: 12_referencias

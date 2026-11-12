@@ -1,0 +1,11 @@
+{
+  "kind": "lr",
+  "encoding": "hash_14",
+  "n_train": 500000,
+  "n_val": 1000000,
+  "n_trials": 15,
+  "best_value": 0.7363642417814444,
+  "best_params": {
+    "alpha": 1.9969781714239917e-05
+  }
+}

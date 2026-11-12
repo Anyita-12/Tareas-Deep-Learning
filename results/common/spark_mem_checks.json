@@ -1,0 +1,18 @@
+[
+  {
+    "filas": 20000,
+    "entrada_apilada_gb": 0.6103515625,
+    "heap_max_gb": 16.0,
+    "heap_libre_gb": 9.514071516692638,
+    "limite_gb": 9.514071516692638,
+    "cabe": true
+  },
+  {
+    "filas": 100000,
+    "entrada_apilada_gb": 3.0517578125,
+    "heap_max_gb": 16.0,
+    "heap_libre_gb": 9.465296566486359,
+    "limite_gb": 9.465296566486359,
+    "cabe": true
+  }
+]

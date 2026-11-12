@@ -1,0 +1,14 @@
+.sidebar-autores { text-align: center; margin: 0.5rem 0 1.25rem; }
+.sidebar-autores .autor { margin-bottom: 1.1rem; }
+.sidebar-autores img {
+  width: 130px; height: 130px; object-fit: cover; border-radius: 50%;
+  border: 3px solid var(--pst-color-border);
+}
+.sidebar-autores .autor-nombre {
+  margin: 0.5rem 0 0.1rem; font-weight: 600; font-size: 0.95rem;
+  color: var(--pst-color-text-base);
+}
+.sidebar-autores .autor-detalle {
+  margin: 0; font-size: 0.8rem; line-height: 1.35;
+  color: var(--pst-color-text-muted);
+}

@@ -1,0 +1,26 @@
+title: Predicción de clics en anuncios móviles con MLP
+author: Anyely Sanjuan Benavides y Juan David Díaz Fernández
+copyright: "2026"
+execute:
+  execute_notebooks: "off"
+repository:
+  url: https://github.com/Anyita-12/Tareas-Deep-Learning
+  branch: main
+  path_to_book: docs
+html:
+  use_repository_button: true
+parse:
+  myst_enable_extensions:
+    - dollarmath
+    - amsmath
+bibtex_bibfiles:
+  - references.bib
+sphinx:
+  config:
+    nb_render_markdown_format: myst
+    language: es
+    templates_path: ["_templates"]
+    html_static_path: ["_static"]
+    html_css_files: ["autores.css"]
+    html_sidebars:
+      "**": ["navbar-logo.html", "autores.html", "icon-links.html", "search-button-field.html", "sbt-sidebar-nav.html"]

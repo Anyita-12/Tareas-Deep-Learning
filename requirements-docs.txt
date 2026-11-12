@@ -1,0 +1,2 @@
+jupyter-book==1.0.4.post1
+ghp-import==2.1.0

@@ -1,0 +1,16 @@
+# Versiones fijadas con las que se probó el flujo completo (Python 3.12).
+# PySpark necesita además Java 17 o posterior (ver README).
+numpy==2.5.4
+pandas==2.3.3            # PySpark 4.3 aún no soporta pandas 3
+pyarrow==26.0.1
+polars==2.1.0
+duckdb==2.0.0
+scipy==1.18.1
+scikit-learn==1.9.1
+optuna==5.0.0
+pyspark==4.3.0
+lime==0.2.0.1
+shap==0.54.1
+matplotlib==3.11.2
+psutil==7.2.2
+ipykernel==7.4.0

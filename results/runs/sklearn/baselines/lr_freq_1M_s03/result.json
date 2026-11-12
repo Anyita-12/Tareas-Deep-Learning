@@ -1,0 +1,63 @@
+{
+  "env": "scikit-learn",
+  "exp": "baselines",
+  "model": "lr",
+  "encoding": "freq",
+  "size": "1M",
+  "n_train": 1000000,
+  "seed": 3,
+  "weighted": false,
+  "crosses": false,
+  "params": {
+    "alpha": 4.2515398754698635e-05
+  },
+  "n_iter": 20,
+  "loss_curve": [],
+  "val_curve": [],
+  "val": {
+    "roc_auc": 0.6783333224420467
+  },
+  "test": {
+    "roc_auc": 0.6776687080607391,
+    "pr_auc": 0.2987968243584822,
+    "log_loss": 0.4276909286484414,
+    "brier": 0.13277834852378612,
+    "ece": 0.0182070826082358,
+    "threshold": 0.19981200993061066,
+    "accuracy": 0.6768229350609087,
+    "precision": 0.2743052876075587,
+    "recall": 0.5524632973249228,
+    "f1": 0.3665925542579948,
+    "tn": 2460913,
+    "fp": 1043840,
+    "fn": 319624,
+    "tp": 394561,
+    "base_rate": 0.16928075264438586,
+    "mean_pred": 0.18304867269941005,
+    "n": 4218938
+  },
+  "bench": {
+    "lectura_s": 0.9692340999899898,
+    "lectura_rows_s": 1031742.4861654454,
+    "prep_s": 5.8305221000046,
+    "prep_peak_mb": 6142.6796875,
+    "prep_delta_mb": 0.05859375,
+    "prep_rows_s": 171511.2270990639,
+    "n_features": 242,
+    "matrix_mb": 923.15673828125,
+    "fit_s": 16.831877499993425,
+    "fit_peak_mb": 9769.08203125,
+    "fit_delta_mb": 11.484375,
+    "fit_rows_s": 59411.07877005347,
+    "predict_s": 1.286143000004813,
+    "predict_peak_mb": 9777.55078125,
+    "predict_delta_mb": 16.1171875,
+    "predict_rows_s": 3280302.4235906983,
+    "fit_s_per_iter": 0.8415938749996712
+  },
+  "run_dir": "sklearn/baselines/lr_freq_1M_s03",
+  "artefactos": {
+    "modelo": "model.pkl",
+    "preprocesador": "models/sklearn_prep/freq_1M.pkl"
+  }
+}

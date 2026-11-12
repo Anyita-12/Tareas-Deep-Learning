@@ -1,0 +1,76 @@
+{
+  "env": "PySpark",
+  "exp": "main",
+  "model": "lr",
+  "encoding": "hash_12",
+  "size": "100k",
+  "n_train": 100000,
+  "seed": 0,
+  "cores": 8,
+  "params": {
+    "maxIter": 100
+  },
+  "n_iter": 100,
+  "bench": {
+    "lectura_s": 8.814769199991133,
+    "lectura_peak_mb": 3128.375,
+    "lectura_delta_mb": 2554.27734375,
+    "lectura_rows_s": 11344.59652104114,
+    "prep_s": 10.475286300003063,
+    "prep_peak_mb": 6682.6328125,
+    "prep_delta_mb": 3560.94921875,
+    "prep_rows_s": 9546.278463049814,
+    "n_features": 4096,
+    "fit_s": 11.17530619999161,
+    "fit_peak_mb": 11802.56640625,
+    "fit_delta_mb": 80.546875,
+    "fit_rows_s": 8948.300673862079,
+    "spark_ui_fit": {
+      "n_etapas": 312,
+      "n_tareas": 1352,
+      "shuffle_read_mb": 26.052471160888672,
+      "shuffle_write_mb": 26.052471160888672,
+      "spill_memoria_mb": 0.0,
+      "spill_disco_mb": 0.0,
+      "executor_run_s": 20.787,
+      "etapa_mayor": "treeAggregate at Summarizer.scala:238",
+      "tareas_etapa_mayor": 9,
+      "tarea_mediana_s": 0.317,
+      "tarea_p95_s": 0.33,
+      "tarea_max_s": 0.33,
+      "sesgo_max_mediana": 1.0410094637223974
+    },
+    "predict_s": 17.07311260001734,
+    "predict_peak_mb": 14338.03125,
+    "predict_delta_mb": 2084.84765625,
+    "predict_rows_s": 247110.06708851174,
+    "fit_s_per_iter": 0.1117530619999161
+  },
+  "val": {
+    "roc_auc": 0.7232458717750561
+  },
+  "test": {
+    "roc_auc": 0.7139548202591857,
+    "pr_auc": 0.3276461635186339,
+    "log_loss": 0.4174581361257704,
+    "brier": 0.13044732209806467,
+    "ece": 0.02767047739103666,
+    "threshold": 0.18928667902946472,
+    "accuracy": 0.6345812619194688,
+    "precision": 0.273807636418902,
+    "recall": 0.7012804805477573,
+    "f1": 0.39384327940088865,
+    "tn": 2176415,
+    "fp": 1328338,
+    "fn": 213341,
+    "tp": 500844,
+    "base_rate": 0.16928075264438586,
+    "mean_pred": 0.1909977515925432,
+    "n": 4218938
+  },
+  "run_dir": "pyspark/main/lr_hash_12_100k_s00_c8",
+  "artefactos": {
+    "modelo_spark": "modelo_spark",
+    "parametros": "parametros.pkl"
+  }
+}

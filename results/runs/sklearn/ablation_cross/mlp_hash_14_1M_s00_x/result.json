@@ -1,0 +1,82 @@
+{
+  "env": "scikit-learn",
+  "exp": "ablation_cross",
+  "model": "mlp",
+  "encoding": "hash_14",
+  "size": "1M",
+  "n_train": 1000000,
+  "seed": 0,
+  "weighted": false,
+  "crosses": true,
+  "params": {
+    "hidden_layer_sizes": "256-128",
+    "alpha": 0.0014392251818202576,
+    "learning_rate_init": 0.00025556618352327165,
+    "batch_size": 256
+  },
+  "n_iter": 7,
+  "loss_curve": [
+    0.4050508434961213,
+    0.3957978207922879,
+    0.3902727974642035,
+    0.3838228205584387,
+    0.3761469688199835,
+    0.36643636955580733,
+    0.35507725101713244
+  ],
+  "val_curve": [
+    0.83371,
+    0.83309,
+    0.8323,
+    0.83108,
+    0.8293,
+    0.82904,
+    0.82212
+  ],
+  "val": {
+    "roc_auc": 0.7430607897790664
+  },
+  "test": {
+    "roc_auc": 0.7346151250552427,
+    "pr_auc": 0.36313365876492903,
+    "log_loss": 0.4038912190807504,
+    "brier": 0.12580990791103108,
+    "ece": 0.009534975144605428,
+    "threshold": 0.219902902841568,
+    "accuracy": 0.6902156419459115,
+    "precision": 0.305446663708426,
+    "recall": 0.6515482683058311,
+    "f1": 0.4159128499879112,
+    "tn": 2446651,
+    "fp": 1058102,
+    "fn": 248859,
+    "tp": 465326,
+    "base_rate": 0.16928075264438586,
+    "mean_pred": 0.17847029671202075,
+    "n": 4218938
+  },
+  "bench": {
+    "lectura_s": 0.47071509997476824,
+    "lectura_rows_s": 2124427.2810742697,
+    "prep_s": 0.8464840999804437,
+    "prep_peak_mb": 4788.9375,
+    "prep_delta_mb": 1350.6015625,
+    "prep_rows_s": 1181357.0981700695,
+    "n_features": 16384,
+    "matrix_mb": 202.12492752075195,
+    "fit_s": 2151.8717109000136,
+    "fit_peak_mb": 8717.15625,
+    "fit_delta_mb": 441.44140625,
+    "fit_rows_s": 464.71171814501577,
+    "predict_s": 10.684969299996737,
+    "predict_peak_mb": 14308.0703125,
+    "predict_delta_mb": 5974.2421875,
+    "predict_rows_s": 394847.9290437726,
+    "fit_s_per_iter": 307.41024441428766
+  },
+  "run_dir": "sklearn/ablation_cross/mlp_hash_14_1M_s00_x",
+  "artefactos": {
+    "modelo": "model.pkl",
+    "preprocesador": "models/sklearn_prep/hash_14_1M_x.pkl"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "kind": "mlp",
+  "encoding": "hash_14",
+  "n_train": 500000,
+  "n_val": 1000000,
+  "n_trials": 30,
+  "best_value": 0.7395466026637387,
+  "best_params": {
+    "hidden_layer_sizes": "256-128",
+    "alpha": 0.0014392251818202576,
+    "learning_rate_init": 0.00025556618352327165,
+    "batch_size": 256
+  }
+}

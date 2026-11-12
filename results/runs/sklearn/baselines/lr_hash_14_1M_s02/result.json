@@ -1,0 +1,63 @@
+{
+  "env": "scikit-learn",
+  "exp": "baselines",
+  "model": "lr",
+  "encoding": "hash_14",
+  "size": "1M",
+  "n_train": 1000000,
+  "seed": 2,
+  "weighted": false,
+  "crosses": false,
+  "params": {
+    "alpha": 1.9969781714239917e-05
+  },
+  "n_iter": 20,
+  "loss_curve": [],
+  "val_curve": [],
+  "val": {
+    "roc_auc": 0.7363030891049688
+  },
+  "test": {
+    "roc_auc": 0.7277816586919483,
+    "pr_auc": 0.35301744492868264,
+    "log_loss": 0.4105370723803273,
+    "brier": 0.12791821829792463,
+    "ece": 0.032775863428111195,
+    "threshold": 0.2170780450105667,
+    "accuracy": 0.652371046931716,
+    "precision": 0.28608427672240766,
+    "recall": 0.7045023348292109,
+    "f1": 0.40692462134768076,
+    "tn": 2249168,
+    "fp": 1255585,
+    "fn": 211040,
+    "tp": 503145,
+    "base_rate": 0.16928075264438586,
+    "mean_pred": 0.20142271026607753,
+    "n": 4218938
+  },
+  "bench": {
+    "lectura_s": 0.9692340999899898,
+    "lectura_rows_s": 1031742.4861654454,
+    "prep_s": 0.9272186000016518,
+    "prep_peak_mb": 4213.74609375,
+    "prep_delta_mb": 692.11328125,
+    "prep_rows_s": 1078494.3270100693,
+    "n_features": 16384,
+    "matrix_mb": 186.86851119995117,
+    "fit_s": 9.481728399987333,
+    "fit_peak_mb": 7366.30859375,
+    "fit_delta_mb": 11.46875,
+    "fit_rows_s": 105466.00343470459,
+    "predict_s": 0.1509620000142604,
+    "predict_peak_mb": 7390.875,
+    "predict_delta_mb": 32.21875,
+    "predict_rows_s": 27947019.777172163,
+    "fit_s_per_iter": 0.4740864199993666
+  },
+  "run_dir": "sklearn/baselines/lr_hash_14_1M_s02",
+  "artefactos": {
+    "modelo": "model.pkl",
+    "preprocesador": "models/sklearn_prep/hash_14_1M.pkl"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "hardware": {
+    "sistema": "Windows 11",
+    "procesador": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+    "nucleos_fisicos": 8,
+    "nucleos_logicos": 16,
+    "frecuencia_max_mhz": 3801.0,
+    "ram_gb": 31.3,
+    "python": "3.12.10"
+  },
+  "fecha": "2026-11-10T22:59:49"
+}

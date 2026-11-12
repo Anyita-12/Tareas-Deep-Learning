@@ -1,0 +1,82 @@
+{
+  "env": "PySpark",
+  "exp": "main",
+  "model": "mlp",
+  "encoding": "hash_12",
+  "size": "100k",
+  "n_train": 100000,
+  "seed": 0,
+  "cores": 8,
+  "params": {
+    "layers": [
+      128,
+      64
+    ],
+    "stepSize": 0.01,
+    "maxIter": 100,
+    "solver": "l-bfgs"
+  },
+  "n_iter": null,
+  "bench": {
+    "lectura_s": 8.814769199991133,
+    "lectura_peak_mb": 3128.375,
+    "lectura_delta_mb": 2554.27734375,
+    "lectura_rows_s": 11344.59652104114,
+    "prep_s": 10.475286300003063,
+    "prep_peak_mb": 6682.6328125,
+    "prep_delta_mb": 3560.94921875,
+    "prep_rows_s": 9546.278463049814,
+    "n_features": 4096,
+    "fit_s": 373.8612541000184,
+    "fit_peak_mb": 17269.15625,
+    "fit_delta_mb": 2926.765625,
+    "fit_rows_s": 267.4789080262572,
+    "spark_ui_fit": {
+      "n_etapas": 343,
+      "n_tareas": 1491,
+      "shuffle_read_mb": 2721.900228500366,
+      "shuffle_write_mb": 2721.900228500366,
+      "spill_memoria_mb": 0.0,
+      "spill_disco_mb": 0.0,
+      "executor_run_s": 2419.026,
+      "etapa_mayor": "treeAggregate at LBFGS.scala:261",
+      "tareas_etapa_mayor": 9,
+      "tarea_mediana_s": 2.853,
+      "tarea_p95_s": 3.262,
+      "tarea_max_s": 3.262,
+      "sesgo_max_mediana": 1.1433578689099193
+    },
+    "predict_s": 10804.708081299992,
+    "predict_peak_mb": 18285.73046875,
+    "predict_delta_mb": 314.72265625,
+    "predict_rows_s": 390.47218751812767,
+    "fit_s_per_iter": 373.8612541000184
+  },
+  "val": {
+    "roc_auc": 0.7194117113461342
+  },
+  "test": {
+    "roc_auc": 0.7109441259612644,
+    "pr_auc": 0.32745442203789055,
+    "log_loss": 0.4154844675075109,
+    "brier": 0.12925686758826505,
+    "ece": 0.012824854630741348,
+    "threshold": 0.17066995799541473,
+    "accuracy": 0.6363158216593844,
+    "precision": 0.2745342106652123,
+    "recall": 0.6991689828265786,
+    "f1": 0.39425937206503037,
+    "tn": 2185241,
+    "fp": 1319512,
+    "fn": 214849,
+    "tp": 499336,
+    "base_rate": 0.16928075264438586,
+    "mean_pred": 0.17181511547750677,
+    "n": 4218938
+  },
+  "run_dir": "pyspark/main/mlp_hash_12_100k_s00_c8",
+  "artefactos": {
+    "modelo_spark": "modelo_spark",
+    "parametros": "parametros.pkl"
+  }
+}

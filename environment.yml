@@ -1,0 +1,11 @@
+# Alternativa con conda. El camino principal es .venv + requirements.txt (ver README).
+name: avazu-ctr
+channels:
+  - conda-forge
+dependencies:
+  - python=3.12
+  - openjdk=17
+  - pip
+  - pip:
+      - -r requirements.txt
+      - -r requirements-docs.txt

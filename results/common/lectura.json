@@ -1,0 +1,50 @@
+{
+  "CSV | pandas (bloques de 1 M)": {
+    "lectura_s": 94.26498369997717,
+    "lectura_peak_mb": 1147.81640625,
+    "lectura_delta_mb": 973.71484375,
+    "filas": 40428967
+  },
+  "CSV | DuckDB": {
+    "lectura_s": 11.551173000014387,
+    "lectura_peak_mb": 592.890625,
+    "lectura_delta_mb": 174.3203125,
+    "filas": 40428967
+  },
+  "CSV | Polars (streaming)": {
+    "lectura_s": 5.86577970001963,
+    "lectura_peak_mb": 1881.1640625,
+    "lectura_delta_mb": 1451.3828125,
+    "filas": 40428967
+  },
+  "CSV | PySpark": {
+    "lectura_s": 80.49157240000204,
+    "lectura_peak_mb": 1362.6328125,
+    "lectura_delta_mb": 374.1484375,
+    "particiones": 1
+  },
+  "Parquet días 21-28 | pandas (lotes de pyarrow)": {
+    "lectura_s": 29.203513799991924,
+    "lectura_peak_mb": 8586.88671875,
+    "lectura_delta_mb": 7251.66015625,
+    "filas": 32377421
+  },
+  "Parquet días 21-28 | DuckDB": {
+    "lectura_s": 0.523600999993505,
+    "lectura_peak_mb": 2391.9296875,
+    "lectura_delta_mb": 310.06640625,
+    "filas": 32377421
+  },
+  "Parquet días 21-28 | Polars (streaming)": {
+    "lectura_s": 1.5654755999858025,
+    "lectura_peak_mb": 12818.2265625,
+    "lectura_delta_mb": 10798.57421875,
+    "filas": 32377421
+  },
+  "Parquet días 21-28 | PySpark": {
+    "lectura_s": 11.116039500018815,
+    "lectura_peak_mb": 16077.03515625,
+    "lectura_delta_mb": 3258.80859375,
+    "particiones": 9
+  }
+}

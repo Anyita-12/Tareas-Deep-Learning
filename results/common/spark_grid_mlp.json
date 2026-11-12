@@ -1,0 +1,409 @@
+{
+  "n_train": 20000,
+  "d": 4096,
+  "cores": 8,
+  "resultados": [
+    {
+      "layers": [
+        10
+      ],
+      "stepSize": 0.1,
+      "maxIter": 100,
+      "solver": "l-bfgs",
+      "auc_val": 0.6543547052890513,
+      "fit_s": 30.006393200019374,
+      "fit_s_estimado": null,
+      "omitido": false
+    },
+    {
+      "layers": [
+        10
+      ],
+      "stepSize": 0.1,
+      "maxIter": 100,
+      "solver": "gd",
+      "auc_val": 0.4905183291952061,
+      "fit_s": 25.607902799994918,
+      "fit_s_estimado": 30.006393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        10
+      ],
+      "stepSize": 0.1,
+      "maxIter": 200,
+      "solver": "l-bfgs",
+      "auc_val": 0.6407480128605604,
+      "fit_s": 57.477892700000666,
+      "fit_s_estimado": 60.01278640003875,
+      "omitido": false
+    },
+    {
+      "layers": [
+        10
+      ],
+      "stepSize": 0.1,
+      "maxIter": 200,
+      "solver": "gd",
+      "auc_val": 0.5373144899749033,
+      "fit_s": 49.665745300007984,
+      "fit_s_estimado": 60.01278640003875,
+      "omitido": false
+    },
+    {
+      "layers": [
+        10
+      ],
+      "stepSize": 0.01,
+      "maxIter": 100,
+      "solver": "l-bfgs",
+      "auc_val": 0.6543559924414482,
+      "fit_s": 26.44052129998454,
+      "fit_s_estimado": 30.006393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        10
+      ],
+      "stepSize": 0.01,
+      "maxIter": 100,
+      "solver": "gd",
+      "auc_val": 0.4656716897535634,
+      "fit_s": 27.00299599999562,
+      "fit_s_estimado": 30.006393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        10
+      ],
+      "stepSize": 0.01,
+      "maxIter": 200,
+      "solver": "l-bfgs",
+      "auc_val": 0.6407474483383553,
+      "fit_s": 55.027899800013984,
+      "fit_s_estimado": 60.01278640003875,
+      "omitido": false
+    },
+    {
+      "layers": [
+        10
+      ],
+      "stepSize": 0.01,
+      "maxIter": 200,
+      "solver": "gd",
+      "auc_val": 0.46748859281137584,
+      "fit_s": 50.42355510001653,
+      "fit_s_estimado": 60.01278640003875,
+      "omitido": false
+    },
+    {
+      "layers": [
+        50
+      ],
+      "stepSize": 0.1,
+      "maxIter": 100,
+      "solver": "l-bfgs",
+      "auc_val": 0.6840827372917456,
+      "fit_s": 54.98806820000755,
+      "fit_s_estimado": 150.03196600009687,
+      "omitido": false
+    },
+    {
+      "layers": [
+        50
+      ],
+      "stepSize": 0.1,
+      "maxIter": 100,
+      "solver": "gd",
+      "auc_val": 0.6164323278593552,
+      "fit_s": 55.42621800000779,
+      "fit_s_estimado": 150.03196600009687,
+      "omitido": false
+    },
+    {
+      "layers": [
+        50
+      ],
+      "stepSize": 0.1,
+      "maxIter": 200,
+      "solver": "l-bfgs",
+      "auc_val": 0.6488986316961343,
+      "fit_s": 88.87257500001579,
+      "fit_s_estimado": 300.06393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        50
+      ],
+      "stepSize": 0.1,
+      "maxIter": 200,
+      "solver": "gd",
+      "auc_val": 0.629030238199066,
+      "fit_s": 73.16486769999028,
+      "fit_s_estimado": 300.06393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        50
+      ],
+      "stepSize": 0.01,
+      "maxIter": 100,
+      "solver": "l-bfgs",
+      "auc_val": 0.6840850132915757,
+      "fit_s": 44.08805730001768,
+      "fit_s_estimado": 150.03196600009687,
+      "omitido": false
+    },
+    {
+      "layers": [
+        50
+      ],
+      "stepSize": 0.01,
+      "maxIter": 100,
+      "solver": "gd",
+      "auc_val": 0.531190121441821,
+      "fit_s": 47.525849099998595,
+      "fit_s_estimado": 150.03196600009687,
+      "omitido": false
+    },
+    {
+      "layers": [
+        50
+      ],
+      "stepSize": 0.01,
+      "maxIter": 200,
+      "solver": "l-bfgs",
+      "auc_val": 0.6489021963352701,
+      "fit_s": 80.63188639999134,
+      "fit_s_estimado": 300.06393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        50
+      ],
+      "stepSize": 0.01,
+      "maxIter": 200,
+      "solver": "gd",
+      "auc_val": 0.5575447045483313,
+      "fit_s": 72.01266740000574,
+      "fit_s_estimado": 300.06393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        100
+      ],
+      "stepSize": 0.1,
+      "maxIter": 100,
+      "solver": "l-bfgs",
+      "auc_val": 0.6894641003716826,
+      "fit_s": 65.50421970000025,
+      "fit_s_estimado": 300.06393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        100
+      ],
+      "stepSize": 0.1,
+      "maxIter": 100,
+      "solver": "gd",
+      "auc_val": 0.6059665642000935,
+      "fit_s": 54.157513300015125,
+      "fit_s_estimado": 300.06393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        100
+      ],
+      "stepSize": 0.1,
+      "maxIter": 200,
+      "solver": "l-bfgs",
+      "auc_val": 0.6745453731272861,
+      "fit_s": 129.83602689998224,
+      "fit_s_estimado": 600.1278640003875,
+      "omitido": false
+    },
+    {
+      "layers": [
+        100
+      ],
+      "stepSize": 0.1,
+      "maxIter": 200,
+      "solver": "gd",
+      "auc_val": 0.6239631337610526,
+      "fit_s": 107.83615679998184,
+      "fit_s_estimado": 600.1278640003875,
+      "omitido": false
+    },
+    {
+      "layers": [
+        100
+      ],
+      "stepSize": 0.01,
+      "maxIter": 100,
+      "solver": "l-bfgs",
+      "auc_val": 0.689463099583576,
+      "fit_s": 64.27024459998938,
+      "fit_s_estimado": 300.06393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        100
+      ],
+      "stepSize": 0.01,
+      "maxIter": 100,
+      "solver": "gd",
+      "auc_val": 0.49131177871615295,
+      "fit_s": 55.69755199999781,
+      "fit_s_estimado": 300.06393200019374,
+      "omitido": false
+    },
+    {
+      "layers": [
+        100
+      ],
+      "stepSize": 0.01,
+      "maxIter": 200,
+      "solver": "l-bfgs",
+      "auc_val": 0.6745448451156958,
+      "fit_s": 131.4876624000026,
+      "fit_s_estimado": 600.1278640003875,
+      "omitido": false
+    },
+    {
+      "layers": [
+        100
+      ],
+      "stepSize": 0.01,
+      "maxIter": 200,
+      "solver": "gd",
+      "auc_val": 0.5164306972279596,
+      "fit_s": 108.31909049997921,
+      "fit_s_estimado": 600.1278640003875,
+      "omitido": false
+    },
+    {
+      "layers": [
+        128,
+        64
+      ],
+      "stepSize": 0.1,
+      "maxIter": 100,
+      "solver": "l-bfgs",
+      "auc_val": 0.6973356742813169,
+      "fit_s": 87.78963839999051,
+      "fit_s_estimado": 393.68387878425415,
+      "omitido": false
+    },
+    {
+      "layers": [
+        128,
+        64
+      ],
+      "stepSize": 0.1,
+      "maxIter": 100,
+      "solver": "gd",
+      "auc_val": 0.5713872703672633,
+      "fit_s": 67.03025070001604,
+      "fit_s_estimado": 393.68387878425415,
+      "omitido": false
+    },
+    {
+      "layers": [
+        128,
+        64
+      ],
+      "stepSize": 0.1,
+      "maxIter": 200,
+      "solver": "l-bfgs",
+      "auc_val": 0.6856027653382151,
+      "fit_s": 181.89952380000614,
+      "fit_s_estimado": 787.3677575685083,
+      "omitido": false
+    },
+    {
+      "layers": [
+        128,
+        64
+      ],
+      "stepSize": 0.1,
+      "maxIter": 200,
+      "solver": "gd",
+      "auc_val": 0.6009730129491119,
+      "fit_s": 138.96728809998604,
+      "fit_s_estimado": 787.3677575685083,
+      "omitido": false
+    },
+    {
+      "layers": [
+        128,
+        64
+      ],
+      "stepSize": 0.01,
+      "maxIter": 100,
+      "solver": "l-bfgs",
+      "auc_val": 0.6973365967551011,
+      "fit_s": 93.94006640001317,
+      "fit_s_estimado": 393.68387878425415,
+      "omitido": false
+    },
+    {
+      "layers": [
+        128,
+        64
+      ],
+      "stepSize": 0.01,
+      "maxIter": 100,
+      "solver": "gd",
+      "auc_val": 0.4946497332980915,
+      "fit_s": 66.89912899999763,
+      "fit_s_estimado": 393.68387878425415,
+      "omitido": false
+    },
+    {
+      "layers": [
+        128,
+        64
+      ],
+      "stepSize": 0.01,
+      "maxIter": 200,
+      "solver": "l-bfgs",
+      "auc_val": 0.6856030265158565,
+      "fit_s": 186.01908120000735,
+      "fit_s_estimado": 787.3677575685083,
+      "omitido": false
+    },
+    {
+      "layers": [
+        128,
+        64
+      ],
+      "stepSize": 0.01,
+      "maxIter": 200,
+      "solver": "gd",
+      "auc_val": 0.5052778880745916,
+      "fit_s": 135.09146590001183,
+      "fit_s_estimado": 787.3677575685083,
+      "omitido": false
+    }
+  ],
+  "best_params": {
+    "layers": [
+      128,
+      64
+    ],
+    "stepSize": 0.01,
+    "maxIter": 100,
+    "solver": "l-bfgs"
+  },
+  "best_auc_val": 0.6973365967551011
+}

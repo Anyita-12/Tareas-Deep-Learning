@@ -1,0 +1,16 @@
+comparación,semilla,solo MLP acierta,solo base acierta,p McNemar
+Regresión logística · Hashing 2^14,0,213712,246211,0.0
+Regresión logística · Hashing 2^14,1,337415,178257,0.0
+Regresión logística · Hashing 2^14,2,343660,176764,0.0
+Regresión logística · Hashing 2^14,3,237104,194678,0.0
+Regresión logística · Hashing 2^14,4,219579,199905,1.1836516330239214e-202
+Regresión logística · Frecuencia,0,783922,287071,0.0
+Regresión logística · Frecuencia,1,486403,477333,2.5102759405473916e-20
+Regresión logística · Frecuencia,2,530808,469622,0.0
+Regresión logística · Frecuencia,3,494208,446992,0.0
+Regresión logística · Frecuencia,4,446766,412007,7.008260653234436e-308
+Gradient boosting · Frecuencia,0,230799,207967,2.4715584004487444e-260
+Gradient boosting · Frecuencia,1,308401,231088,0.0
+Gradient boosting · Frecuencia,2,306854,209493,0.0
+Gradient boosting · Frecuencia,3,272379,236433,0.0
+Gradient boosting · Frecuencia,4,246028,176812,0.0
